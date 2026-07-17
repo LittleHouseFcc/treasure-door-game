@@ -1,447 +1,351 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>The Treasure Door | CogniPlay Dynamics</title>
 <style>
 :root{
-  --bg:#03111f;--panel:#08233b;--panel2:#0d2d48;--text:#f5fbff;--muted:#b8ccda;
-  --teal:#2cc8cb;--gold:#ffc95c;--good:#71e0a5;--bad:#ff7a7a;--line:rgba(255,255,255,.12);
-  --purple:#9d7cff;--blue:#4fb8ff;--green:#54d68d;--orange:#ff9c59
+  --bg:#04121f;--panel:#09243a;--panel2:#0d2d48;--text:#f7fbff;--muted:#b6c9d8;
+  --teal:#28c7cb;--gold:#ffc857;--good:#70e1a5;--bad:#ff7b7b;--line:rgba(255,255,255,.12);
+  --purple:#9b67dc;--blue:#3f9ee8
 }
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{
   margin:0;min-height:100vh;color:var(--text);font-family:Arial,Helvetica,sans-serif;
   background:
-    linear-gradient(rgba(2,10,18,.88),rgba(2,10,18,.94)),
-    url("./treasure-door-cover.png") center top / cover fixed no-repeat,
+    linear-gradient(rgba(2,9,16,.78),rgba(2,9,16,.9)),
+    url("./treasure-door-cover.png") center top/cover fixed no-repeat,
     #03111f;
 }
-button,input{font:inherit}button{cursor:pointer}
-.wrap{width:min(1240px,95%);margin:auto;padding:22px 0 38px}
-header{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:14px;border-bottom:1px solid rgba(44,200,203,.18);margin-bottom:18px}
-.brand strong{display:block;color:var(--gold);font-size:1.2rem}
-.brand span{display:block;color:var(--teal);font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;margin-top:3px}
-.top-actions{display:flex;gap:8px;flex-wrap:wrap}
-.sound{border:1px solid rgba(44,200,203,.55);background:rgba(44,200,203,.1);color:var(--teal);border-radius:999px;padding:8px 12px}
+button,input{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.screen{min-height:100vh}
+.glass{background:rgba(5,23,39,.86);backdrop-filter:blur(12px);border:1px solid rgba(40,199,203,.24)}
+.primary,.secondary,.danger{
+  border-radius:12px;padding:12px 16px;font-weight:800;transition:.18s
+}
+.primary{border:0;background:var(--teal);color:#00272b}
+.secondary{border:1px solid rgba(40,199,203,.55);background:rgba(5,23,39,.4);color:var(--teal)}
+.danger{border:1px solid #6c7480;background:#111923;color:#fff}
+.primary:hover,.secondary:hover,.danger:hover{transform:translateY(-1px)}
+.site-footer{text-align:center;color:#8ea7b7;font-size:.84rem;padding:22px 10px}
 
-.layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:20px}
-.panel{background:rgba(7,28,47,.88);backdrop-filter:blur(12px);border:1px solid rgba(44,200,203,.25);border-radius:20px;padding:20px}
+/* START */
+#startScreen{
+  display:grid;place-items:center;padding:24px;position:relative;overflow:hidden;
+  background:
+    linear-gradient(rgba(2,8,14,.18),rgba(2,8,14,.5)),
+    url("./treasure-door-cover.png") center/cover no-repeat;
+}
+#startScreen:before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 22% 16%,rgba(255,255,255,.7) 0 1px,transparent 2px),
+    radial-gradient(circle at 73% 12%,rgba(255,255,255,.7) 0 1px,transparent 2px),
+    radial-gradient(circle at 54% 24%,rgba(255,225,120,.85) 0 2px,transparent 3px);
+  background-size:190px 170px,260px 220px,310px 280px;
+  animation:stars 4s infinite alternate;
+}
+@keyframes stars{from{opacity:.45}to{opacity:1}}
+.start-card{
+  position:relative;z-index:2;width:min(560px,94%);padding:32px;text-align:center;border-radius:24px;
+  background:rgba(4,16,27,.82);backdrop-filter:blur(12px);border:1px solid rgba(255,200,87,.42);
+  box-shadow:0 24px 80px rgba(0,0,0,.45)
+}
+.start-card h1{font-size:clamp(2.8rem,8vw,5.5rem);line-height:.9;margin:0;color:var(--gold);text-shadow:0 5px 18px rgba(255,150,0,.45)}
+.start-card .subtitle{margin:18px 0 24px;color:#e7f2f8;font-size:1.12rem}
+.start-buttons{display:grid;gap:11px}
+.start-buttons button{width:100%;font-size:1.04rem}
+.start-stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+.start-stats span{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.07);color:#d8e7ef;font-size:.86rem}
+.version{margin-top:16px;color:#86a0b2;font-size:.78rem}
+
+/* LOADING */
+#loadingScreen{display:grid;place-items:center;background:rgba(2,8,14,.96)}
+.loading-box{width:min(500px,88%);text-align:center}
+.loading-chest{font-size:90px;animation:chestPulse 1s infinite alternate}
+@keyframes chestPulse{from{transform:scale(.94)}to{transform:scale(1.05)}}
+.loading-box h2{color:var(--gold)}
+.loading-track{height:14px;border-radius:99px;background:#14283a;overflow:hidden;border:1px solid rgba(40,199,203,.3)}
+.loading-bar{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:.18s}
+
+/* APP HEADER */
+.app-wrap{width:min(1260px,95%);margin:auto;padding:18px 0 36px}
+.app-header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px;padding:10px 4px 14px;border-bottom:1px solid rgba(40,199,203,.2)}
+.brand strong{display:block;color:var(--gold);font-size:1.18rem}.brand span{color:var(--teal);font-size:.7rem;text-transform:uppercase;letter-spacing:.14em}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* MAP */
+#mapScreen{padding-bottom:30px}
+.map-shell{padding:22px;border-radius:22px}
+.map-title{text-align:center}.map-title h2{color:var(--gold);font-size:2rem;margin-bottom:7px}.map-title p{color:var(--muted)}
+.player-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.metric{padding:12px;border-radius:12px;background:rgba(255,255,255,.05);text-align:center;border:1px solid var(--line)}
+.metric small{display:block;color:var(--muted);text-transform:uppercase;font-size:.68rem;letter-spacing:.07em}.metric strong{font-size:1.25rem}
+.level-path{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.level-node{position:relative;padding:18px;border-radius:16px;background:rgba(6,24,41,.86);border:1px solid var(--line);text-align:center}
+.level-node.locked{opacity:.45}
+.level-node.completed{border-color:rgba(112,225,165,.6)}
+.level-node.current{border-color:var(--gold);box-shadow:0 0 22px rgba(255,200,87,.22)}
+.node-icon{font-size:46px}.node-number{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;margin:8px auto;background:var(--teal);color:#032124;font-weight:900}
+.level-node h3{margin:8px 0 5px}.level-node p{color:var(--muted);font-size:.88rem;min-height:40px}
+.level-node button{margin-top:8px;width:100%}
+
+/* GAME */
+.game-layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:20px}
+.panel{padding:20px;border-radius:20px}
 .eyebrow{color:var(--teal);font-weight:800;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
-h1{font-size:clamp(2.2rem,5vw,4rem);line-height:.97;color:var(--gold);margin:0 0 14px}
+h1{font-size:clamp(2.1rem,5vw,3.8rem);line-height:.97;color:var(--gold);margin:0 0 14px}
 h2,h3,p{margin-top:0}
-.lead{line-height:1.6;color:#e5f0f6}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:18px 0}
+.lead{color:#e5f0f6;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:17px 0}
 .stat{padding:10px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.04);text-align:center}
-.stat small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
-.stat strong{font-size:1.05rem}
-.progress{height:9px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:18px}
-.progress>div{height:100%;width:33.33%;background:var(--teal);transition:.35s}
-.lesson{padding:17px;border-left:4px solid var(--teal);background:rgba(44,200,203,.08);border-radius:11px}
-.lesson h2{font-size:1.18rem;color:var(--gold);margin-bottom:8px}
-.lesson p{color:var(--muted);line-height:1.55}
-.lesson-points{display:grid;gap:8px;margin-top:10px}
-.lesson-point{display:flex;gap:8px}.lesson-point b{color:var(--teal)}
-.mastery{display:none}.mastery.show{display:block}
-.skill-list{display:grid;gap:8px;margin:14px 0}.skill{padding:9px;border:1px solid var(--line);border-radius:9px}.pass{color:var(--good)}
+.stat small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase}.stat strong{font-size:1.05rem}
+.progress{height:9px;background:#14283a;border-radius:99px;overflow:hidden;margin-bottom:16px}.progress>div{height:100%;background:var(--teal);transition:.35s}
+.lesson{padding:16px;border-left:4px solid var(--teal);border-radius:11px;background:rgba(40,199,203,.08)}
+.lesson h2{color:var(--gold);font-size:1.16rem}.lesson p{color:var(--muted);line-height:1.55}
+.lesson-points{display:grid;gap:7px}.lesson-point{display:flex;gap:8px}.lesson-point b{color:var(--teal)}
 
 .scene{
-  position:relative;min-height:490px;border:1px solid rgba(255,201,92,.25);border-radius:17px;overflow:hidden;
-  background:
-    radial-gradient(circle at 50% 35%,rgba(255,201,92,.12),transparent 26%),
-    linear-gradient(#0a2033,#0a1b2a 61%,#131820 61%);
+  position:relative;min-height:490px;border-radius:17px;overflow:hidden;border:1px solid rgba(255,200,87,.26);
+  background:radial-gradient(circle at 50% 35%,rgba(255,200,87,.12),transparent 27%),linear-gradient(#092034,#0a1b2a 61%,#131920 61%)
 }
-.scene:before{content:"";position:absolute;inset:0;opacity:.24;background:
-  repeating-linear-gradient(0deg,transparent 0 50px,rgba(255,255,255,.03) 50px 53px),
-  repeating-linear-gradient(90deg,transparent 0 84px,rgba(255,255,255,.025) 84px 88px)}
-.scene.theme-2{background:radial-gradient(circle at 50% 35%,rgba(73,204,255,.18),transparent 28%),linear-gradient(#081d31,#0b263d 61%,#121a21 61%)}
+.scene.theme-2{background:radial-gradient(circle at 50% 35%,rgba(72,202,255,.18),transparent 28%),linear-gradient(#071d30,#0c263c 61%,#121a21 61%)}
 .scene.theme-3{background:radial-gradient(circle at 50% 35%,rgba(184,106,255,.17),transparent 28%),linear-gradient(#150f24,#1c1430 61%,#18131e 61%)}
+.scene:before{content:"";position:absolute;inset:0;opacity:.23;background:repeating-linear-gradient(0deg,transparent 0 50px,rgba(255,255,255,.03) 50px 53px),repeating-linear-gradient(90deg,transparent 0 84px,rgba(255,255,255,.025) 84px 88px)}
 .scene-title{position:absolute;left:18px;top:16px;z-index:8}.scene-title h2{margin:0}.scene-title p{margin:4px 0 0;color:var(--muted)}
-.arch{position:absolute;left:50%;top:82px;transform:translateX(-50%);width:300px;height:350px;border:24px solid #6d767c;border-bottom-width:30px;border-radius:155px 155px 12px 12px;z-index:3;box-shadow:inset 0 0 0 6px #30383e}
+.arch{position:absolute;left:50%;top:82px;transform:translateX(-50%);width:300px;height:350px;border:24px solid #6d767c;border-bottom-width:30px;border-radius:155px 155px 12px 12px;z-index:3}
 .theme-2 .arch{border-color:#428ca7}.theme-3 .arch{border-color:#ad8c3b}
 .doors{position:absolute;left:50%;top:106px;transform:translateX(-50%);width:252px;height:300px;z-index:5;perspective:900px}
-.door-half{position:absolute;top:0;width:50%;height:100%;background:repeating-linear-gradient(90deg,#724018 0 21px,#583014 21px 25px);border:5px solid #a66a2b;transition:.85s;backface-visibility:hidden}
-.door-half.left{left:0;transform-origin:left center;border-radius:120px 0 0 8px}.door-half.right{right:0;transform-origin:right center;border-radius:0 120px 8px 0}
-.theme-2 .door-half{background:repeating-linear-gradient(0deg,#155573 0 31px,#0d425d 31px 35px);border-color:#68cbe2}
-.theme-3 .door-half{background:repeating-linear-gradient(90deg,#1d172f 0 21px,#302142 21px 25px);border-color:#d6ad48}
+.door-half{position:absolute;top:0;width:50%;height:100%;background:repeating-linear-gradient(90deg,#724018 0 21px,#583014 21px 25px);border:5px solid #a66a2b;transition:.85s}
+.door-half.left{left:0;transform-origin:left;border-radius:120px 0 0 8px}.door-half.right{right:0;transform-origin:right;border-radius:0 120px 8px 0}
+.theme-2 .door-half{background:repeating-linear-gradient(0deg,#155573 0 31px,#0d425d 31px 35px);border-color:#68cbe2}.theme-3 .door-half{background:repeating-linear-gradient(90deg,#1d172f 0 21px,#302142 21px 25px);border-color:#d6ad48}
 .doors.open .left{transform:rotateY(-106deg)}.doors.open .right{transform:rotateY(106deg)}
-.portal{position:absolute;left:50%;top:112px;transform:translateX(-50%);width:235px;height:286px;border-radius:50%;background:radial-gradient(circle,#fff1a0,rgba(255,197,66,.45),transparent 70%);opacity:0;transition:.7s .25s;z-index:2}
-.portal.show{opacity:1}
-.reward{position:absolute;left:50%;top:210px;transform:translateX(-50%) scale(.6);opacity:0;z-index:4;transition:.7s .55s;text-align:center}
-.reward.show{opacity:1;transform:translateX(-50%) scale(1)}
-.reward-art{font-size:78px;filter:drop-shadow(0 0 18px rgba(255,215,90,.9))}
-.reward-name{display:inline-block;margin-top:8px;padding:6px 12px;border:1px solid rgba(255,201,92,.5);border-radius:999px;color:var(--gold);background:rgba(2,14,24,.8);font-weight:800}
-.spark{position:absolute;width:7px;height:7px;border-radius:50%;background:#ffe88d;opacity:0;z-index:7}.scene.won .spark{opacity:1;animation:spark 1.4s infinite}
-.s1{left:42%;top:38%}.s2{left:58%;top:32%;animation-delay:.3s!important}.s3{left:50%;top:50%;animation-delay:.6s!important}
-@keyframes spark{0%{opacity:0;transform:scale(.2)}50%{opacity:1}100%{opacity:0;transform:translateY(-45px) scale(1.2)}}
-
+.portal{position:absolute;left:50%;top:112px;transform:translateX(-50%);width:235px;height:286px;border-radius:50%;background:radial-gradient(circle,#fff1a0,rgba(255,197,66,.45),transparent 70%);opacity:0;transition:.7s .25s;z-index:2}.portal.show{opacity:1}
+.reward{position:absolute;left:50%;top:210px;transform:translateX(-50%) scale(.6);opacity:0;z-index:4;transition:.7s .55s;text-align:center}.reward.show{opacity:1;transform:translateX(-50%) scale(1)}
+.reward-art{font-size:78px}.reward-name{display:inline-block;margin-top:8px;padding:6px 12px;border:1px solid rgba(255,200,87,.5);border-radius:999px;color:var(--gold);background:rgba(2,14,24,.8);font-weight:800}
 .game-ui{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:13px}
-input{width:100%;border:1px solid rgba(44,200,203,.55);border-radius:11px;padding:12px;background:rgba(255,255,255,.06);color:white}
-.primary,.secondary{border-radius:11px;padding:11px 15px;font-weight:800}
-.primary{border:0;background:var(--teal);color:#00272a}.secondary{border:1px solid rgba(44,200,203,.55);background:transparent;color:var(--teal)}
+input{width:100%;border:1px solid rgba(40,199,203,.55);border-radius:11px;padding:12px;background:rgba(255,255,255,.06);color:#fff}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
-.feedback{min-height:56px;margin-top:12px;padding:12px;border-left:4px solid var(--teal);background:rgba(255,255,255,.05);border-radius:10px;line-height:1.48}
-.feedback.good{border-color:var(--good);background:rgba(113,224,165,.08)}.feedback.bad{border-color:var(--bad);background:rgba(255,122,122,.08)}
-.inspector{margin-top:13px;border-top:1px solid var(--line);padding-top:13px}
-.inspector-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px}.inspector h3{margin:0;color:var(--gold)}
+.feedback{min-height:56px;margin-top:12px;padding:12px;border-left:4px solid var(--teal);background:rgba(255,255,255,.05);border-radius:10px;line-height:1.48}.feedback.good{border-color:var(--good);background:rgba(112,225,165,.08)}.feedback.bad{border-color:var(--bad);background:rgba(255,123,123,.08)}
+.inspector{margin-top:13px;border-top:1px solid var(--line);padding-top:13px}.inspector h3{color:var(--gold)}
 .code-box{background:#020b14;border:1px solid var(--line);border-radius:11px;padding:12px;color:#d9f8fa;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.5}
-.code-line{display:block;padding:3px 6px;border-radius:5px}.code-line.active{background:rgba(255,201,92,.18);color:#fff1bd}
+.code-line{display:block;padding:3px 6px;border-radius:5px}.code-line.active{background:rgba(255,200,87,.2);color:#fff2bf}
 .trace{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.trace div{background:rgba(255,255,255,.04);padding:8px;border-radius:8px;text-align:center}.trace small{display:block;color:var(--muted)}
 .quiz{margin-top:13px;border-top:1px solid var(--line);padding-top:13px}.choices{display:grid;gap:7px}
-.choice{text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.05);color:white;border-radius:10px;padding:10px;font-weight:700}
-.choice.correct{border-color:var(--good);background:rgba(113,224,165,.12)}.choice.wrong{border-color:var(--bad);background:rgba(255,122,122,.12)}
+.choice{text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;border-radius:10px;padding:10px;font-weight:700}.choice.correct{border-color:var(--good);background:rgba(112,225,165,.12)}.choice.wrong{border-color:var(--bad);background:rgba(255,123,123,.12)}
 
-.level-flash{position:absolute;inset:0;display:grid;place-items:center;background:rgba(2,12,21,.85);z-index:20;opacity:0;pointer-events:none;transition:.35s}.level-flash.show{opacity:1}
-.level-flash div{text-align:center}.level-flash strong{display:block;color:var(--gold);font-size:2.2rem}.level-flash span{color:var(--muted)}
+/* STORY + LEVEL COMPLETE */
+.overlay{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(2,8,14,.82);padding:20px}
+.dialog-card,.level-complete-card,.modal-card{width:min(560px,94%);padding:24px;border-radius:20px}
+.dialog-character{font-size:70px;text-align:center}.dialog-card h2,.level-complete-card h2,.modal-card h2{text-align:center;color:var(--gold)}
+.dialog-card p,.level-complete-card p,.modal-card p{color:var(--muted);line-height:1.55}
+.dialog-actions,.complete-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:14px}
+.stars{font-size:34px;text-align:center;color:var(--gold);letter-spacing:5px}
+.reward-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:14px}.reward-chip{padding:10px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.05);text-align:center}.reward-chip small{display:block;color:var(--muted)}.reward-chip strong{color:var(--good)}
 
-/* FINAL BLOCK BOSS */
-.boss{display:none}.boss.show{display:block}
-.boss-head{margin-bottom:14px}.boss-head h2{color:var(--gold);margin-bottom:6px}.boss-head p{color:var(--muted);line-height:1.55}
-.boss-grid{display:grid;grid-template-columns:240px 1fr 340px;gap:14px}
-.toolbox,.workspace,.python-live{background:rgba(5,23,39,.96);border:1px solid rgba(44,200,203,.25);border-radius:15px;padding:14px}
-.toolbox h3,.workspace h3,.python-live h3{color:var(--gold);margin-bottom:10px}
-.block-group{margin-bottom:14px}.block-group small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
-.block{
-  position:relative;margin:7px 0;padding:10px 12px;border-radius:9px 9px 9px 3px;color:#07111b;font-weight:800;
-  cursor:grab;user-select:none;box-shadow:inset 0 -3px rgba(0,0,0,.16)
-}
-.block:before{content:"";position:absolute;left:-5px;top:11px;width:10px;height:18px;border-radius:5px;background:inherit}
-.block.variable{background:var(--orange)}.block.loop{background:var(--purple)}.block.operation{background:var(--green)}.block.condition{background:var(--blue)}.block.action{background:var(--gold)}
-.block.dragging{opacity:.45}
-.workspace{min-height:520px}
-.program-slot{
-  min-height:54px;margin:9px 0;border:2px dashed #47667b;border-radius:10px;padding:9px 10px;color:#7590a2;
-  display:flex;align-items:center;transition:.2s
-}
-.program-slot.over{border-color:var(--gold);background:rgba(255,201,92,.08)}
-.program-slot.filled{border-style:solid;color:white;background:#102a40}
-.program-slot.indent{margin-left:26px}
-.slot-label{font-size:.8rem;color:#8ba3b4;margin-right:8px}
-.slot-block{flex:1;padding:8px 10px;border-radius:8px;color:#07111b;font-weight:800}
-.remove-block{border:0;background:rgba(255,255,255,.12);color:white;border-radius:7px;padding:5px 8px;margin-left:7px}
-.boss-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.hint-box{display:none;margin-top:10px;padding:10px;border-left:4px solid var(--gold);background:rgba(255,201,92,.08);border-radius:9px;color:#f6e8b9;line-height:1.45}.hint-box.show{display:block}
-.python-code{min-height:300px;background:#020b14;border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;color:#d8f6f7;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.55}
-.python-line{display:block;padding:2px 5px;border-radius:4px}.python-line.active{background:rgba(255,201,92,.2);color:#fff2bf}
+/* BOSS BLOCKS */
+#bossScreen{padding-bottom:30px}
+.boss-head h2{color:var(--gold);font-size:2rem;margin-bottom:5px}.boss-head p{color:var(--muted)}
+.boss-grid{display:grid;grid-template-columns:230px 1fr 340px;gap:14px}
+.toolbox,.workspace,.python-live{padding:14px;border-radius:15px}.toolbox h3,.workspace h3,.python-live h3{color:var(--gold)}
+.block-group{margin-bottom:13px}.block-group small{display:block;color:var(--muted);text-transform:uppercase;font-size:.68rem;letter-spacing:.08em;margin-bottom:6px}
+.block{margin:7px 0;padding:10px 12px;border-radius:9px;color:#07111b;font-weight:800;cursor:grab;user-select:none}
+.block.variable{background:#ff9c59}.block.loop{background:#9d7cff}.block.operation{background:#54d68d}.block.condition{background:#4fb8ff}.block.action{background:#ffc857}
+.program-slot{min-height:54px;margin:9px 0;border:2px dashed #47667b;border-radius:10px;padding:9px;color:#7892a4;display:flex;align-items:center}.program-slot.over{border-color:var(--gold);background:rgba(255,200,87,.08)}.program-slot.filled{border-style:solid;background:#102a40;color:#fff}.program-slot.indent{margin-left:26px}
+.slot-label{font-size:.78rem;margin-right:8px}.slot-block{flex:1;padding:8px 10px;border-radius:8px;color:#07111b;font-weight:800}.remove-block{border:0;background:rgba(255,255,255,.12);color:#fff;border-radius:7px;padding:5px 8px;margin-left:7px}
+.hint-box{display:none;margin-top:10px;padding:10px;border-left:4px solid var(--gold);background:rgba(255,200,87,.08);border-radius:9px;color:#f6e8b9}.hint-box.show{display:block}
+.python-code{min-height:300px;background:#020b14;border:1px solid var(--line);border-radius:10px;padding:12px;color:#d8f6f7;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.55}.python-line{display:block;padding:2px 5px;border-radius:4px}.python-line.active{background:rgba(255,200,87,.2)}
 .boss-console{margin-top:10px;min-height:92px;background:#041019;border:1px solid var(--line);border-radius:10px;padding:10px;color:#a8f0b8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}
+.boss-stage{position:relative;min-height:540px;margin-top:14px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,200,87,.28);background:linear-gradient(rgba(3,12,22,.35),rgba(3,12,22,.55)),url("./treasure-door-cover.png") center/cover}
+.guard{position:absolute;left:35px;bottom:90px;font-size:76px;z-index:6}.wizard{position:absolute;left:135px;bottom:90px;font-size:64px;z-index:6}.speech{position:absolute;left:25px;bottom:205px;max-width:225px;background:#f8fbff;color:#122334;border-radius:13px;padding:10px 12px;font-weight:700;z-index:9}
+.vault-arch{position:absolute;left:58%;top:55px;transform:translateX(-50%);width:330px;height:390px;border:23px solid #68747d;border-bottom-width:29px;border-radius:155px 155px 12px 12px;z-index:3}
+.vault-door{position:absolute;left:58%;top:81px;transform:translateX(-50%);width:280px;height:335px;z-index:5;perspective:900px}.v-half{position:absolute;top:0;width:50%;height:100%;background:repeating-linear-gradient(90deg,#263640 0 20px,#17242c 20px 24px);border:5px solid #9aaab4;transition:.9s}.v-half.left{left:0;transform-origin:left;border-radius:130px 0 0 8px}.v-half.right{right:0;transform-origin:right;border-radius:0 130px 8px 0}.vault-door.open .left{transform:rotateY(-108deg)}.vault-door.open .right{transform:rotateY(108deg)}
+.magic-locks{position:absolute;left:42%;top:150px;display:grid;gap:22px;z-index:10;transition:.45s}.magic-locks.hide{opacity:0;transform:scale(.5)}.magic-lock{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;border:5px solid #6c7b84;background:#17232b;color:#72818a;transition:.4s}.magic-lock.on{background:#ffe58a;border-color:var(--gold);color:#2d2304;box-shadow:0 0 22px rgba(255,200,87,.8)}
+.key-flight{position:absolute;left:245px;bottom:150px;font-size:36px;opacity:0;z-index:11}
+@keyframes k1{to{opacity:1;transform:translate(280px,-205px) rotate(540deg)}}@keyframes k2{to{opacity:1;transform:translate(280px,-135px) rotate(540deg)}}@keyframes k3{to{opacity:1;transform:translate(280px,-65px) rotate(540deg)}}
+.key-flight.k1.fly{animation:k1 1s forwards}.key-flight.k2.fly{animation:k2 1s .12s forwards}.key-flight.k3.fly{animation:k3 1s .24s forwards}
+.treasure-hall{position:absolute;left:58%;top:190px;transform:translateX(-50%) scale(.55);opacity:0;z-index:4;transition:.75s .7s;text-align:center;width:240px}.boss-stage.won .treasure-hall{opacity:1;transform:translateX(-50%) scale(1);z-index:7}.treasure-art{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;font-size:50px}.treasure-tag{display:inline-block;margin-top:8px;padding:6px 10px;border:1px solid rgba(255,200,87,.5);border-radius:999px;background:rgba(2,14,23,.8);color:var(--gold);font-weight:800;font-size:.78rem}
+.stage-status{position:absolute;left:18px;right:18px;bottom:15px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;z-index:12}.stage-status div{padding:9px;background:rgba(2,14,23,.8);border:1px solid var(--line);border-radius:9px;text-align:center}.stage-status small{display:block;color:var(--muted)}
 
-.boss-stage{
-  position:relative;min-height:520px;margin-top:14px;border:1px solid rgba(255,201,92,.28);border-radius:16px;overflow:hidden;
-  background:radial-gradient(circle at 50% 35%,rgba(255,201,92,.11),transparent 28%),linear-gradient(#0b2033,#0a1723 64%,#141920 64%)
-}
-.boss-stage:before{content:"";position:absolute;inset:0;opacity:.23;background:
- repeating-linear-gradient(0deg,transparent 0 54px,rgba(255,255,255,.03) 54px 57px),
- repeating-linear-gradient(90deg,transparent 0 88px,rgba(255,255,255,.025) 88px 92px)}
-.guard{position:absolute;left:38px;bottom:90px;font-size:78px;z-index:5}.wizard{position:absolute;left:138px;bottom:90px;font-size:66px;z-index:5}
-.speech{position:absolute;left:28px;bottom:205px;max-width:225px;background:#f8fbff;color:#122334;border-radius:13px;padding:10px 12px;font-weight:700;z-index:8}
-.vault-arch{position:absolute;left:62%;top:65px;transform:translateX(-50%);width:280px;height:340px;border:23px solid #68747d;border-bottom-width:29px;border-radius:145px 145px 12px 12px;z-index:3}
-.vault-door{position:absolute;left:62%;top:89px;transform:translateX(-50%);width:232px;height:292px;z-index:5;perspective:900px}
-.v-half{position:absolute;top:0;width:50%;height:100%;background:repeating-linear-gradient(90deg,#263640 0 20px,#17242c 20px 24px);border:5px solid #9aaab4;transition:.9s}
-.v-half.left{left:0;transform-origin:left center;border-radius:115px 0 0 8px}.v-half.right{right:0;transform-origin:right center;border-radius:0 115px 8px 0}
-.vault-door.open .left{transform:rotateY(-108deg)}.vault-door.open .right{transform:rotateY(108deg)}
-.magic-locks{position:absolute;left:62%;top:165px;transform:translateX(-50%);display:grid;gap:14px;z-index:9;transition:.5s}
-.magic-locks.hide{opacity:0;transform:translateX(-50%) scale(.45)}
-.magic-lock{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:4px solid #6c7b84;background:#17232b;color:#72818a;transition:.4s}
-.magic-lock.on{background:#ffe58a;border-color:var(--gold);color:#2d2304;box-shadow:0 0 22px rgba(255,201,92,.8)}
-.key-flight{position:absolute;left:225px;bottom:138px;font-size:36px;opacity:0;z-index:10}
-.key-flight.fly{animation:keyfly 1s ease-in-out forwards}
-.key-flight.k2{animation-delay:.18s}.key-flight.k3{animation-delay:.36s}
-@keyframes keyfly{0%{opacity:0;transform:translate(0,0) rotate(0)}20%{opacity:1}100%{opacity:1;transform:translate(360px,-175px) rotate(540deg)}}
-.vault-glow{position:absolute;left:62%;top:100px;transform:translateX(-50%);width:205px;height:270px;border-radius:50%;background:radial-gradient(circle,#fff5ad,rgba(255,201,92,.42),transparent 72%);opacity:0;transition:.7s .4s;z-index:2}
-.boss-stage.won .vault-glow{opacity:1}
-.treasure-hall{position:absolute;left:62%;top:210px;transform:translateX(-50%) scale(.55);opacity:0;z-index:4;transition:.75s .7s;text-align:center}
-.boss-stage.won .treasure-hall{opacity:1;transform:translateX(-50%) scale(1)}
-.treasure-art{font-size:62px;white-space:nowrap;filter:drop-shadow(0 0 18px rgba(255,218,95,.9))}
-.treasure-tag{display:inline-block;margin-top:7px;padding:6px 11px;border:1px solid rgba(255,201,92,.5);border-radius:999px;background:rgba(2,14,23,.8);color:var(--gold);font-weight:800}
-.stage-status{position:absolute;left:18px;right:18px;bottom:15px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;z-index:12}
-.stage-status div{padding:9px;border-radius:9px;background:rgba(2,14,23,.8);border:1px solid var(--line);text-align:center}.stage-status small{display:block;color:var(--muted)}
-.medal-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(2,8,13,.84);z-index:25;opacity:0;pointer-events:none;transition:.5s}
-.medal-overlay.show{opacity:1;pointer-events:auto}
-.medal-card{width:min(470px,90%);text-align:center;padding:28px 24px;border-radius:22px;background:
- radial-gradient(circle at 50% 10%,rgba(255,231,129,.22),transparent 35%),linear-gradient(#15324b,#0c2032);
- border:2px solid rgba(255,201,92,.6);box-shadow:0 24px 70px rgba(0,0,0,.55)}
-.medal-ring{width:130px;height:130px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;
- background:radial-gradient(circle,#fff2a1 0 32%,#ffc94f 33% 58%,#8d6112 59% 68%,#f3c44e 69%);
- box-shadow:0 0 0 8px rgba(255,201,92,.12),0 0 34px rgba(255,201,92,.55)}
-.medal-ring span{font-size:58px}
-.medal-card h2{color:var(--gold);margin:8px 0}.medal-card p{color:var(--muted);line-height:1.5}
-.badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0}.badges span{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.06);color:#e7f3f8}
-.xp{font-size:1.35rem;color:var(--good);font-weight:900;margin:10px 0}
+/* COMPLETION */
+#completionScreen{padding-bottom:30px}
+.completion-shell{padding:20px;border-radius:20px}
+.completion-title{text-align:center;color:var(--gold);font-size:clamp(2.2rem,6vw,4.3rem);font-weight:900;text-shadow:0 4px 18px rgba(255,170,0,.5)}
+.completion-grid{display:grid;grid-template-columns:230px 1fr 300px;gap:14px;margin-top:14px}
+.completion-box{padding:14px;border-radius:14px;background:rgba(4,18,31,.85);border:1px solid rgba(40,199,203,.22)}
+.completion-box h3{color:var(--teal)}
+.lesson-done{display:flex;gap:9px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.lesson-done:last-child{border-bottom:0}.done-check{margin-left:auto;color:var(--good);font-size:1.3rem}
+.final-vault-room{min-height:360px;display:grid;place-items:center;background:radial-gradient(circle,rgba(255,205,72,.28),transparent 42%),rgba(4,18,31,.76)}
+.final-treasure-icons{font-size:54px;text-align:center}.final-treasure-name{text-align:center;margin-top:10px;color:var(--gold);font-weight:900}
+.completion-code pre{background:#020b14;border-radius:10px;padding:12px;white-space:pre-wrap;color:#d9f8fa;line-height:1.5}
+.completion-bottom{display:grid;grid-template-columns:1fr 300px;gap:14px;margin-top:14px}
+.completion-medal{display:flex;gap:18px;align-items:center;padding:17px;border-radius:14px;background:linear-gradient(135deg,rgba(110,54,160,.42),rgba(255,200,87,.12));border:1px solid rgba(255,200,87,.45)}
+.big-medal{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;font-size:52px;background:radial-gradient(circle,#fff3a2 0 30%,#ffc951 31% 58%,#8c6114 59%)}.completion-medal h2{color:var(--gold)}.xp-final{font-size:1.6rem;color:var(--good);font-weight:900}
+.completion-actions{display:grid;gap:9px;padding:14px;border-radius:14px;background:rgba(4,18,31,.85);border:1px solid rgba(40,199,203,.22)}.completion-actions h3{color:var(--teal)}
+.completion-actions button{width:100%}
+.exit-note{display:none;color:var(--muted);font-size:.82rem}.exit-note.show{display:block}
 
-footer{text-align:center;color:#8ea7b7;font-size:.84rem;padding:25px 8px 2px}
-@media(max-width:1050px){.boss-grid{grid-template-columns:1fr 1fr}.python-live{grid-column:1/-1}.layout{grid-template-columns:1fr}}
-@media(max-width:700px){.boss-grid{grid-template-columns:1fr}.python-live{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}.game-ui{grid-template-columns:1fr}.trace{grid-template-columns:1fr}.stage-status{grid-template-columns:1fr}.boss-stage{min-height:600px}.vault-arch{left:65%;transform:translateX(-50%) scale(.82);transform-origin:top center}.vault-door{left:65%;transform:translateX(-50%) scale(.82);transform-origin:top center}.magic-locks{left:65%}.vault-glow,.treasure-hall{left:65%}}
+/* MODALS */
+.modal-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.switch{position:relative;width:52px;height:28px;border-radius:99px;background:#334a5c;cursor:pointer}.switch:after{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:#fff;transition:.2s}.switch.on{background:var(--teal)}.switch.on:after{left:27px}
 
-/* Refined final-vault layout */
-.boss-stage{
-  background:
-    linear-gradient(rgba(3,12,22,.34),rgba(3,12,22,.52)),
-    url("./treasure-door-cover.png") center 48% / cover no-repeat;
-}
-.vault-arch{left:57%;top:52px;width:330px;height:390px}
-.vault-door{left:57%;top:79px;width:280px;height:335px}
-.magic-locks{
-  left:41%;top:148px;transform:none;display:grid;gap:23px;
-  transition:opacity .45s,transform .45s;
-}
-.magic-locks.hide{opacity:0;transform:scale(.5)}
-.magic-lock{width:50px;height:50px;border-width:5px}
-.key-flight{left:250px;bottom:150px}
-@keyframes keyfly1{
-  0%{opacity:0;transform:translate(0,0) rotate(0)}
-  18%{opacity:1}
-  100%{opacity:1;transform:translate(270px,-205px) rotate(540deg)}
-}
-@keyframes keyfly2{
-  0%{opacity:0;transform:translate(0,0) rotate(0)}
-  18%{opacity:1}
-  100%{opacity:1;transform:translate(270px,-135px) rotate(540deg)}
-}
-@keyframes keyfly3{
-  0%{opacity:0;transform:translate(0,0) rotate(0)}
-  18%{opacity:1}
-  100%{opacity:1;transform:translate(270px,-65px) rotate(540deg)}
-}
-.key-flight.k1.fly{animation:keyfly1 1s ease-in-out forwards}
-.key-flight.k2.fly{animation:keyfly2 1s .12s ease-in-out forwards}
-.key-flight.k3.fly{animation:keyfly3 1s .24s ease-in-out forwards}
-.vault-glow{left:57%;top:95px;width:250px;height:300px}
-.treasure-hall{
-  left:57%;top:175px;z-index:4;
-  width:240px;
-}
-.treasure-art{
-  font-size:54px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:8px;
-  white-space:normal;
-  align-items:center;
-  justify-items:center;
-}
-.treasure-art span{display:block;filter:drop-shadow(0 0 12px rgba(255,218,95,.9))}
-.treasure-tag{font-size:.78rem;margin-top:9px}
-.boss-stage.won .vault-door{z-index:3}
-.boss-stage.won .treasure-hall{z-index:6}
-
-/* Full commercial completion screen */
-.completion-screen{
-  position:absolute;inset:0;z-index:35;display:none;
-  background:
-    linear-gradient(rgba(2,9,16,.35),rgba(2,9,16,.72)),
-    url("./treasure-door-cover.png") center / cover no-repeat;
-  padding:18px;
-  overflow:auto;
-}
-.completion-screen.show{display:block}
-.completion-shell{
-  min-height:100%;
-  border:1px solid rgba(255,201,92,.42);
-  border-radius:18px;
-  background:rgba(4,16,27,.86);
-  backdrop-filter:blur(12px);
-  padding:18px;
-  display:grid;
-  grid-template-columns:230px 1fr 300px;
-  grid-template-rows:auto 1fr auto;
-  gap:14px;
-}
-.completion-title{
-  grid-column:1/-1;
-  text-align:center;
-  color:var(--gold);
-  font-size:clamp(2rem,5vw,4rem);
-  font-weight:900;
-  text-shadow:0 4px 18px rgba(255,170,0,.55);
-}
-.completion-lessons,.completion-code,.completion-reward,.completion-actions{
-  border:1px solid rgba(44,200,203,.22);
-  border-radius:14px;
-  background:rgba(4,18,31,.85);
-  padding:14px;
-}
-.completion-lessons h3,.completion-code h3,.completion-actions h3{color:var(--teal);margin-bottom:12px}
-.lesson-done{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.lesson-done:last-child{border-bottom:0}
-.lesson-number{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--teal);color:#052026;font-weight:900}
-.done-check{margin-left:auto;color:var(--good);font-size:1.4rem}
-.completion-reward{
-  position:relative;
-  display:grid;
-  place-items:center;
-  min-height:380px;
-  background:
-    radial-gradient(circle at 50% 48%,rgba(255,205,72,.28),transparent 40%),
-    rgba(4,18,31,.76);
-}
-.final-vault-room{position:relative;width:330px;height:330px;max-width:100%}
-.final-arch{position:absolute;inset:8px 25px 0;border:22px solid #626d75;border-bottom-width:27px;border-radius:150px 150px 10px 10px}
-.final-door-left,.final-door-right{
-  position:absolute;top:33px;width:110px;height:260px;
-  background:repeating-linear-gradient(90deg,#263640 0 19px,#17242c 19px 23px);
-  border:5px solid #9aaab4;
-}
-.final-door-left{left:29px;transform:perspective(700px) rotateY(-70deg);transform-origin:left center}
-.final-door-right{right:29px;transform:perspective(700px) rotateY(70deg);transform-origin:right center}
-.final-treasure{
-  position:absolute;left:50%;top:105px;transform:translateX(-50%);
-  width:190px;text-align:center;z-index:4;
-}
-.final-treasure-icons{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;font-size:42px}
-.final-treasure-icons span{filter:drop-shadow(0 0 12px rgba(255,220,95,.9))}
-.final-treasure-name{margin-top:12px;padding:7px;border-radius:999px;background:rgba(2,12,20,.82);border:1px solid rgba(255,201,92,.5);color:var(--gold);font-weight:900;font-size:.8rem}
-.completion-code pre{background:#020b14;border-radius:10px;padding:12px;white-space:pre-wrap;color:#d9f8fa;line-height:1.55}
-.success-result{margin-top:12px;padding:12px;border-radius:10px;background:rgba(113,224,165,.1);border:1px solid rgba(113,224,165,.4);color:#cffff0}
-.completion-bottom{grid-column:1/-1;display:grid;grid-template-columns:1fr 300px;gap:14px}
-.completion-medal{
-  display:flex;align-items:center;gap:18px;padding:16px;border-radius:14px;
-  background:linear-gradient(135deg,rgba(110,54,160,.42),rgba(255,201,92,.12));
-  border:1px solid rgba(255,201,92,.45)
-}
-.big-medal{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;font-size:52px;background:radial-gradient(circle,#fff3a2 0 30%,#ffc951 31% 58%,#8c6114 59%);box-shadow:0 0 28px rgba(255,201,92,.5)}
-.medal-copy h2{color:var(--gold);margin-bottom:6px}.medal-copy p{color:var(--muted);margin-bottom:7px}.xp-final{font-size:1.6rem;color:var(--good);font-weight:900}
-.completion-actions{display:grid;gap:9px}
-.completion-actions button{width:100%;padding:12px;border-radius:10px;font-weight:900}
-.play-again{background:linear-gradient(90deg,#7734a8,#9b43c2);color:white;border:1px solid #c572eb}
-.back-start{background:linear-gradient(90deg,#12599b,#1974bd);color:white;border:1px solid #4ca6e8}
-.exit-game{background:#111923;color:white;border:1px solid #4d5967}
-.exit-message{display:none;margin-top:9px;color:var(--muted);font-size:.85rem;line-height:1.4}
-.exit-message.show{display:block}
-@media(max-width:980px){
-  .completion-shell{grid-template-columns:1fr}
-  .completion-title,.completion-bottom{grid-column:auto}
-  .completion-bottom{grid-template-columns:1fr}
-}
-
+@media(max-width:1050px){.level-path{grid-template-columns:repeat(2,1fr)}.game-layout{grid-template-columns:1fr}.boss-grid{grid-template-columns:1fr 1fr}.python-live{grid-column:1/-1}.completion-grid{grid-template-columns:1fr}.completion-bottom{grid-template-columns:1fr}}
+@media(max-width:700px){.player-summary,.stats,.reward-row,.stage-status{grid-template-columns:1fr}.level-path,.boss-grid{grid-template-columns:1fr}.python-live{grid-column:auto}.game-ui{grid-template-columns:1fr}.completion-medal{flex-direction:column;text-align:center}}
 </style>
 </head>
 <body>
-<main class="wrap">
-<header>
-  <div class="brand"><strong>The Treasure Door</strong><span>by CogniPlay Dynamics</span></div>
-  <div class="top-actions"><button class="sound" id="testSound">▶ Test Sound</button><button class="sound" id="soundBtn">🔊 Sound On</button></div>
-</header>
 
-<section id="mainGame" class="layout">
-  <aside class="panel">
-    <div class="eyebrow">Learn Through Adventure</div>
-    <h1>The Treasure Door</h1>
-    <p class="lead">Complete three guided levels, then use draggable Python blocks to defeat the final vault challenge.</p>
-    <div class="stats">
-      <div class="stat"><small>Level</small><strong id="levelStat">1 / 3</strong></div>
-      <div class="stat"><small>Lives</small><strong id="livesStat">❤️❤️❤️</strong></div>
-      <div class="stat"><small>Game Score</small><strong id="gameScore">0</strong></div>
-      <div class="stat"><small>Knowledge</small><strong id="knowledgeScore">0 / 3</strong></div>
+<section id="startScreen" class="screen">
+  <div class="start-card">
+    <h1>THE<br>TREASURE DOOR</h1>
+    <p class="subtitle">Learn Python Through Adventure</p>
+    <div class="start-buttons">
+      <button class="primary" id="startGameBtn">▶ Start Game</button>
+      <button class="secondary" id="continueBtn">Continue Adventure</button>
+      <button class="secondary" id="howBtn">📖 How to Play</button>
+      <button class="secondary" id="settingsBtn">⚙ Settings</button>
     </div>
-    <div class="progress"><div id="progressBar"></div></div>
-    <section class="lesson" id="lessonBox">
-      <h2 id="lessonTitle"></h2><p id="lessonText"></p><div class="lesson-points" id="lessonPoints"></div>
-    </section>
-    <section class="lesson mastery" id="masteryBox">
-      <h2>Adventure Complete</h2><p>You completed all three lessons and the final Python block challenge.</p>
-      <div class="skill-list"><div class="skill"><span class="pass">✓</span> Variables</div><div class="skill"><span class="pass">✓</span> Decisions</div><div class="skill"><span class="pass">✓</span> Loops</div></div>
-      <button class="primary" id="restartAll">Play Again</button>
-    </section>
-  </aside>
-
-  <section class="panel">
-    <div class="scene theme-1" id="scene">
-      <div class="level-flash" id="levelFlash"><div><strong id="flashTitle"></strong><span id="flashSub"></span></div></div>
-      <div class="scene-title"><h2 id="sceneTitle"></h2><p id="sceneSubtitle"></p></div>
-      <div class="portal" id="portal"></div><div class="arch"></div>
-      <div class="doors" id="doors"><div class="door-half left"></div><div class="door-half right"></div></div>
-      <div class="reward" id="reward"></div>
-      <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span>
-    </div>
-    <div class="game-ui"><input id="guessInput" type="number" placeholder="Enter your guess"><button class="primary" id="guessBtn">Run the Code</button></div>
-    <div class="row"><button class="secondary" id="hintBtn">Extra Hint</button><button class="secondary" id="retryBtn" hidden>Retry Level</button><button class="secondary" id="nextBtn" hidden>Next Level</button></div>
-    <div class="feedback" id="feedback">Enter a guess when you are ready.</div>
-    <section class="inspector">
-      <div class="inspector-head"><h3>Python Inspector</h3><span style="color:var(--muted);font-size:.84rem">The executing line is highlighted</span></div>
-      <div class="code-box" id="liveCode"></div>
-      <div class="trace"><div><small>guess</small><strong id="traceGuess">—</strong></div><div><small>secret_number</small><strong id="traceSecret">hidden</strong></div><div><small>loop count</small><strong id="traceLoop">0</strong></div></div>
-    </section>
-    <section class="quiz" id="quiz" hidden><h3 id="quizQuestion"></h3><div class="choices" id="choices"></div><div class="feedback" id="quizFeedback">Choose the correct answer.</div></section>
-  </section>
+    <div class="start-stats"><span>3 Guided Levels</span><span>Final Coding Challenge</span><span>XP & Achievements</span></div>
+    <div class="version">Presented by CogniPlay Dynamics</div>
+  </div>
 </section>
 
-<section id="bossSection" class="boss">
-  <div class="boss-head">
-    <div class="eyebrow">Final Boss Challenge</div>
-    <h2>Build the Ancient Vault Program</h2>
-    <p>Drag blocks into the program slots. The Python code updates automatically. Use Hint when needed, then run your program and watch the game world respond.</p>
+<section id="loadingScreen" class="screen hidden">
+  <div class="loading-box">
+    <div class="loading-chest">🧰</div>
+    <h2>Preparing the Ancient Castle...</h2>
+    <div class="loading-track"><div class="loading-bar" id="loadingBar"></div></div>
+    <p id="loadingText">Loading lessons...</p>
   </div>
+</section>
 
-  <div class="boss-grid">
-    <aside class="toolbox">
-      <h3>Python Blocks</h3>
-      <div class="block-group"><small>Variables</small><div class="block variable" draggable="true" data-id="init">keys = 0</div></div>
-      <div class="block-group"><small>Loop</small><div class="block loop" draggable="true" data-id="while">while keys &lt; 3:</div></div>
-      <div class="block-group"><small>Operation</small><div class="block operation" draggable="true" data-id="increment">keys += 1</div></div>
-      <div class="block-group"><small>Decision</small><div class="block condition" draggable="true" data-id="decision">if / elif / else</div></div>
-      <div class="block-group"><small>Action</small><div class="block action" draggable="true" data-id="open">Open the vault</div></div>
-      <p style="color:var(--muted);font-size:.88rem;line-height:1.45">Drag each block into the matching logical position. You can remove a placed block and try again.</p>
-    </aside>
-
-    <section class="workspace">
-      <h3>Build Your Program</h3>
-      <div class="program-slot" data-slot="0"><span class="slot-label">1</span><span>Initialize a variable</span></div>
-      <div class="program-slot" data-slot="1"><span class="slot-label">2</span><span>Start a loop</span></div>
-      <div class="program-slot indent" data-slot="2"><span class="slot-label">3</span><span>Repeat an action</span></div>
-      <div class="program-slot" data-slot="3"><span class="slot-label">4</span><span>Make a decision</span></div>
-      <div class="program-slot indent" data-slot="4"><span class="slot-label">5</span><span>Choose the successful action</span></div>
-      <div class="boss-actions"><button class="primary" id="runBoss">▶ Run Adventure</button><button class="secondary" id="hintBoss">💡 Hint</button><button class="secondary" id="resetBoss">Reset</button><button class="secondary" id="solutionBoss">Show Solution</button></div>
-      <div class="hint-box" id="hintBox"></div>
-    </section>
-
-    <aside class="python-live">
-      <h3>Live Python</h3>
-      <div class="python-code" id="generatedCode"># Drag blocks to build your program...</div>
-      <div class="boss-console" id="bossConsole">Ready. Build the program, then run it.</div>
-    </aside>
-  </div>
-
-  <div class="boss-stage" id="bossStage">
-    <div class="speech" id="bossSpeech">Build a program that collects three keys and opens the vault.</div>
-    <div class="guard">🛡️</div><div class="wizard">🧙</div>
-    <div class="vault-glow"></div><div class="vault-arch"></div>
-    <div class="vault-door" id="vaultDoor"><div class="v-half left"></div><div class="v-half right"></div></div>
-    <div class="magic-locks" id="magicLocks"><div class="magic-lock" id="ml1">1</div><div class="magic-lock" id="ml2">2</div><div class="magic-lock" id="ml3">3</div></div>
-    <span class="key-flight k1">🔑</span><span class="key-flight k2">🔑</span><span class="key-flight k3">🔑</span>
-    <div class="treasure-hall">
-      <div class="treasure-art"><span>💎</span><span>👑</span><span>🪙</span><span>🏆</span><span>📜</span><span>⭐</span></div>
-      <div class="treasure-tag">Ancient Python Treasure Hall</div>
+<section id="mapScreen" class="screen hidden">
+  <div class="app-wrap">
+    <header class="app-header">
+      <div class="brand"><strong>The Treasure Door</strong><span>Python Learning Adventure</span></div>
+      <div class="header-actions"><button class="secondary" id="mapHomeBtn">⌂ Home</button><button class="secondary soundToggle">🔊 Sound On</button></div>
+    </header>
+    <div class="map-shell glass">
+      <div class="map-title"><h2>Adventure Map</h2><p>Complete each lesson to unlock the Ancient Vault.</p></div>
+      <div class="player-summary">
+        <div class="metric"><small>XP</small><strong id="mapXP">0</strong></div>
+        <div class="metric"><small>Lessons</small><strong id="mapLessons">0 / 3</strong></div>
+        <div class="metric"><small>Achievements</small><strong id="mapAchievements">0 / 4</strong></div>
+      </div>
+      <div class="level-path" id="levelPath"></div>
     </div>
-    <div class="stage-status"><div><small>Keys</small><strong id="bossKeys">0 / 3</strong></div><div><small>Loop Iterations</small><strong id="bossLoops">0</strong></div><div><small>Decision</small><strong id="bossDecision">Waiting</strong></div></div>
-    
-    <section class="completion-screen" id="completionScreen">
-      <div class="completion-shell">
-        <div class="completion-title">VAULT UNLOCKED!</div>
+    <footer class="site-footer">© 2026 CogniPlay Dynamics, Inc. All Rights Reserved.</footer>
+  </div>
+</section>
 
-        <aside class="completion-lessons">
-          <h3>Lessons Completed</h3>
-          <div class="lesson-done"><span class="lesson-number">1</span><span><strong>Variables</strong><br><small>Store and use data</small></span><span class="done-check">✓</span></div>
-          <div class="lesson-done"><span class="lesson-number">2</span><span><strong>If / Elif / Else</strong><br><small>Make decisions</small></span><span class="done-check">✓</span></div>
-          <div class="lesson-done"><span class="lesson-number">3</span><span><strong>While Loop</strong><br><small>Repeat until complete</small></span><span class="done-check">✓</span></div>
-        </aside>
-
-        <section class="completion-reward">
-          <div class="final-vault-room">
-            <div class="final-arch"></div>
-            <div class="final-door-left"></div>
-            <div class="final-door-right"></div>
-            <div class="final-treasure">
-              <div class="final-treasure-icons"><span>💎</span><span>👑</span><span>🪙</span><span>🏆</span><span>📜</span><span>⭐</span></div>
-              <div class="final-treasure-name">Ancient Python Treasure Hall</div>
-            </div>
-          </div>
+<section id="gameScreen" class="screen hidden">
+  <div class="app-wrap">
+    <header class="app-header">
+      <div class="brand"><strong>The Treasure Door</strong><span>Python Learning Adventure</span></div>
+      <div class="header-actions"><button class="secondary" id="gameMapBtn">🗺 Map</button><button class="secondary soundToggle">🔊 Sound On</button></div>
+    </header>
+    <div class="game-layout">
+      <aside class="panel glass">
+        <div class="eyebrow">Learn Through Adventure</div>
+        <h1>The Treasure Door</h1>
+        <p class="lead">Follow the story, solve the number puzzle, and watch Python execute in real time.</p>
+        <div class="stats">
+          <div class="stat"><small>Level</small><strong id="levelStat">1 / 3</strong></div>
+          <div class="stat"><small>Lives</small><strong id="livesStat">❤️❤️❤️</strong></div>
+          <div class="stat"><small>Score</small><strong id="gameScore">0</strong></div>
+          <div class="stat"><small>XP</small><strong id="gameXP">0</strong></div>
+        </div>
+        <div class="progress"><div id="progressBar"></div></div>
+        <section class="lesson">
+          <h2 id="lessonTitle"></h2><p id="lessonText"></p><div class="lesson-points" id="lessonPoints"></div>
         </section>
+      </aside>
 
-        <aside class="completion-code">
-          <h3>&lt;/&gt; Final Python</h3>
-          <pre>keys = 0
+      <section class="panel glass">
+        <div class="scene theme-1" id="scene">
+          <div class="scene-title"><h2 id="sceneTitle"></h2><p id="sceneSubtitle"></p></div>
+          <div class="portal" id="portal"></div><div class="arch"></div>
+          <div class="doors" id="doors"><div class="door-half left"></div><div class="door-half right"></div></div>
+          <div class="reward" id="reward"></div>
+        </div>
+        <div class="game-ui"><input id="guessInput" type="number" placeholder="Enter your guess"><button class="primary" id="guessBtn">Run the Code</button></div>
+        <div class="row"><button class="secondary" id="hintBtn">Extra Hint</button><button class="secondary" id="retryBtn" hidden>Retry Level</button></div>
+        <div class="feedback" id="feedback">Enter a guess when you are ready.</div>
+        <section class="inspector">
+          <h3>Python Inspector</h3>
+          <div class="code-box" id="liveCode"></div>
+          <div class="trace"><div><small>guess</small><strong id="traceGuess">—</strong></div><div><small>secret_number</small><strong id="traceSecret">hidden</strong></div><div><small>loop count</small><strong id="traceLoop">0</strong></div></div>
+        </section>
+        <section class="quiz hidden" id="quiz"><h3 id="quizQuestion"></h3><div class="choices" id="choices"></div><div class="feedback" id="quizFeedback">Choose the correct answer.</div></section>
+      </section>
+    </div>
+    <footer class="site-footer">© 2026 CogniPlay Dynamics, Inc. All Rights Reserved.</footer>
+  </div>
+</section>
+
+<section id="bossScreen" class="screen hidden">
+  <div class="app-wrap">
+    <header class="app-header">
+      <div class="brand"><strong>The Treasure Door</strong><span>Final Vault Challenge</span></div>
+      <div class="header-actions"><button class="secondary" id="bossMapBtn">🗺 Map</button><button class="secondary soundToggle">🔊 Sound On</button></div>
+    </header>
+
+    <div class="boss-head glass panel"><div class="eyebrow">Final Vault Challenge</div><h2>Build the Ancient Vault Program</h2><p>Drag Python blocks into the logical order. Your code will appear automatically and control the castle animation.</p></div>
+
+    <div class="boss-grid">
+      <aside class="toolbox glass"><h3>Python Blocks</h3>
+        <div class="block-group"><small>Variables</small><div class="block variable" draggable="true" data-id="init">keys = 0</div></div>
+        <div class="block-group"><small>Loop</small><div class="block loop" draggable="true" data-id="while">while keys &lt; 3:</div></div>
+        <div class="block-group"><small>Operation</small><div class="block operation" draggable="true" data-id="increment">keys += 1</div></div>
+        <div class="block-group"><small>Decision</small><div class="block condition" draggable="true" data-id="decision">if / elif / else</div></div>
+        <div class="block-group"><small>Action</small><div class="block action" draggable="true" data-id="open">Open the vault</div></div>
+      </aside>
+
+      <section class="workspace glass"><h3>Build Your Program</h3>
+        <div class="program-slot" data-slot="0"><span class="slot-label">1</span><span>Initialize a variable</span></div>
+        <div class="program-slot" data-slot="1"><span class="slot-label">2</span><span>Start a loop</span></div>
+        <div class="program-slot indent" data-slot="2"><span class="slot-label">3</span><span>Repeat an action</span></div>
+        <div class="program-slot" data-slot="3"><span class="slot-label">4</span><span>Make a decision</span></div>
+        <div class="program-slot indent" data-slot="4"><span class="slot-label">5</span><span>Choose the successful action</span></div>
+        <div class="row"><button class="primary" id="runFinal">▶ Run Adventure</button><button class="secondary" id="hintFinal">💡 Hint</button><button class="secondary" id="resetFinal">Reset</button><button class="secondary" id="solutionFinal">Show Solution</button></div>
+        <div class="hint-box" id="hintBox"></div>
+      </section>
+
+      <aside class="python-live glass"><h3>Live Python</h3><div class="python-code" id="generatedCode"># Drag blocks to build your program...</div><div class="boss-console" id="bossConsole">Ready. Build the program, then run it.</div></aside>
+    </div>
+
+    <div class="boss-stage" id="bossStage">
+      <div class="speech" id="bossSpeech">Build a program that collects three keys and opens the vault.</div>
+      <div class="guard">🛡️</div><div class="wizard">🧙</div>
+      <div class="vault-arch"></div>
+      <div class="vault-door" id="vaultDoor"><div class="v-half left"></div><div class="v-half right"></div></div>
+      <div class="magic-locks" id="magicLocks"><div class="magic-lock" id="ml1">1</div><div class="magic-lock" id="ml2">2</div><div class="magic-lock" id="ml3">3</div></div>
+      <span class="key-flight k1">🔑</span><span class="key-flight k2">🔑</span><span class="key-flight k3">🔑</span>
+      <div class="treasure-hall"><div class="treasure-art"><span>💎</span><span>👑</span><span>🪙</span><span>🏆</span><span>📜</span><span>⭐</span></div><div class="treasure-tag">Ancient Python Treasure Hall</div></div>
+      <div class="stage-status"><div><small>Keys</small><strong id="bossKeys">0 / 3</strong></div><div><small>Loop Iterations</small><strong id="bossLoops">0</strong></div><div><small>Decision</small><strong id="bossDecision">Waiting</strong></div></div>
+    </div>
+    <footer class="site-footer">© 2026 CogniPlay Dynamics, Inc. All Rights Reserved.</footer>
+  </div>
+</section>
+
+<section id="completionScreen" class="screen hidden">
+  <div class="app-wrap">
+    <header class="app-header"><div class="brand"><strong>The Treasure Door</strong><span>Adventure Complete</span></div><div class="header-actions"><button class="secondary soundToggle">🔊 Sound On</button></div></header>
+    <div class="completion-shell glass">
+      <div class="completion-title">VAULT UNLOCKED!</div>
+      <div class="completion-grid">
+        <aside class="completion-box"><h3>Lessons Completed</h3>
+          <div class="lesson-done"><span>1 · Variables</span><span class="done-check">✓</span></div>
+          <div class="lesson-done"><span>2 · If / Elif / Else</span><span class="done-check">✓</span></div>
+          <div class="lesson-done"><span>3 · While Loop</span><span class="done-check">✓</span></div>
+        </aside>
+        <section class="completion-box final-vault-room"><div><div class="final-treasure-icons">💎 👑 🪙 🏆 📜 ⭐</div><div class="final-treasure-name">Ancient Python Treasure Hall</div></div></section>
+        <aside class="completion-box completion-code"><h3>&lt;/&gt; Final Python</h3><pre>keys = 0
 
 while keys &lt; 3:
     keys += 1
@@ -453,227 +357,177 @@ elif keys &lt; 3:
 else:
     action = "Open the vault"
 
-print(action)</pre>
-          <div class="success-result">✓ Program executed successfully<br><strong>Result: Open the vault</strong></div>
-        </aside>
-
-        <div class="completion-bottom">
-          <section class="completion-medal">
-            <div class="big-medal">🏆</div>
-            <div class="medal-copy">
-              <h2>Python Treasure Master</h2>
-              <p>Variables Master · Conditions Master · Loops Master</p>
-              <div class="xp-final">+300 XP</div>
-            </div>
-          </section>
-
-          <aside class="completion-actions">
-            <h3>What's Next?</h3>
-            <button type="button" class="play-again" id="playAgainBtn">↻ Play Again</button>
-            <button type="button" class="back-start" id="backStartBtn">🏰 Back to Start</button>
-            <button type="button" class="exit-game" id="exitGameBtn">⇥ Exit Game</button>
-            <div class="exit-message" id="exitMessage">Your browser may block a webpage from closing itself. You can close this tab manually.</div>
-          </aside>
-        </div>
+print(action)</pre></aside>
       </div>
-    </section>
-
-    <div class="medal-overlay" id="medalOverlay">
-      <div class="medal-card">
-        <div class="medal-ring"><span>🏆</span></div>
-        <h2>Python Treasure Master</h2>
-        <p>You built a working program with a variable, a while loop, and a decision structure.</p>
-        <div class="badges"><span>Variable Builder</span><span>Loop Master</span><span>Decision Master</span></div>
-        <div class="xp">+300 XP</div>
-        <button class="primary" id="closeMedal">Explore the Treasure Hall</button>
+      <div class="completion-bottom">
+        <section class="completion-medal"><div class="big-medal">🏆</div><div><h2>Python Treasure Master</h2><p>Variables Master · Conditions Master · Loops Master</p><div class="xp-final">+300 XP</div></div></section>
+        <aside class="completion-actions"><h3>What's Next?</h3><button class="primary" id="replayFinalBtn">↻ Replay Final Challenge</button><button class="secondary" id="restartAdventureBtn">🏰 Restart Adventure</button><button class="secondary" id="returnMapBtn">🗺 Return to Map</button><button class="danger" id="exitBtn">⇥ Exit Game</button><div class="exit-note" id="exitNote">Your browser may block automatic closing. Close this tab manually.</div></aside>
       </div>
     </div>
+    <footer class="site-footer">© 2026 CogniPlay Dynamics, Inc. All Rights Reserved.</footer>
   </div>
 </section>
 
-<footer>© 2026 CogniPlay Dynamics, Inc. All Rights Reserved.</footer>
-</main>
+<!-- STORY -->
+<div id="storyOverlay" class="overlay hidden"><div class="dialog-card glass"><div class="dialog-character">🧙</div><h2 id="storyTitle"></h2><p id="storyText"></p><div class="dialog-actions"><button class="primary" id="storyContinue">Begin Level</button></div></div></div>
+
+<!-- LEVEL COMPLETE -->
+<div id="levelCompleteOverlay" class="overlay hidden"><div class="level-complete-card glass"><div class="stars">★★★★★</div><h2 id="completeTitle">Door Opened!</h2><p id="completeText"></p><div class="reward-row"><div class="reward-chip"><small>Score</small><strong id="completeScore">0</strong></div><div class="reward-chip"><small>XP Earned</small><strong id="completeXP">+0</strong></div><div class="reward-chip"><small>Achievement</small><strong id="completeBadge">—</strong></div></div><div class="complete-actions"><button class="primary" id="completeContinue">Continue</button><button class="secondary" id="completeMap">View Map</button></div></div></div>
+
+<!-- HOW -->
+<div id="howModal" class="overlay hidden"><div class="modal-card glass"><h2>How to Play</h2><p>1. Read the short lesson and story.<br>2. Guess the secret number and watch Python execute.<br>3. Answer the knowledge question.<br>4. Complete all three lessons.<br>5. Drag Python blocks to unlock the final vault.</p><div class="modal-actions"><button class="primary closeModal">Got It</button></div></div></div>
+
+<!-- SETTINGS -->
+<div id="settingsModal" class="overlay hidden"><div class="modal-card glass"><h2>Settings</h2><div class="settings-row"><span>Sound Effects</span><div class="switch on" id="soundSwitch"></div></div><div class="settings-row"><span>Auto-save Progress</span><div class="switch on" id="saveSwitch"></div></div><div class="modal-actions" style="margin-top:15px"><button class="primary closeModal">Done</button></div></div></div>
 
 <script>
 (() => {
 const levels=[
- {title:"Variables and Random Numbers",text:"A variable stores information. Python stores the hidden answer in secret_number.",points:["Variables hold values.","random.randint creates a random whole number.","guess stores the player's input."],max:10,theme:1,reward:"💰",rewardName:"Golden Treasure",code:['secret_number = random.randint(1, 10)','guess = int(input("Guess: "))','if guess == secret_number:'],q:"Which variable stores the hidden number?",choices:["guess","secret_number","score"],answer:1,explain:"secret_number stores the generated answer."},
- {title:"If / Elif / Else Decisions",text:"Python compares the guess with the secret number and chooses one branch.",points:["if checks one condition.","elif checks another.","else handles the remaining result."],max:20,theme:2,reward:"💎",rewardName:"Enchanted Crystal",code:['if guess < secret_number:','    print("Try higher")','elif guess > secret_number:','    print("Try lower")','else:','    print("Unlocked!")'],q:"What lets Python choose between higher, lower, and correct?",choices:["A conditional statement","A comment","A file"],answer:0,explain:"if / elif / else selects one branch."},
- {title:"While Loops and Break",text:"The loop repeats the guessing process. break stops it when the answer is correct.",points:["while True repeats.","Each guess is one iteration.","break exits the loop."],max:30,theme:3,reward:"👑",rewardName:"Royal Crown",code:['while True:','    guess = int(input("Guess: "))','    if guess == secret_number:','        break'],q:"Which keyword stops the while True loop?",choices:["input","random","break"],answer:2,explain:"break exits the nearest loop."}
+ {title:"Variables and Random Numbers",story:"The first door hides its answer inside a variable. Find the number and learn how Python stores information.",text:"A variable stores information. Python stores the hidden answer in secret_number.",points:["Variables hold values.","random.randint creates a random whole number.","guess stores the player's input."],max:10,theme:1,reward:"💰",rewardName:"Golden Treasure",code:['secret_number = random.randint(1, 10)','guess = int(input("Guess: "))','if guess == secret_number:'],q:"Which variable stores the hidden number?",choices:["guess","secret_number","score"],answer:1,explain:"secret_number stores the generated answer.",badge:"Variable Explorer"},
+ {title:"If / Elif / Else Decisions",story:"The second door listens to decisions. Python must choose whether your guess is too low, too high, or correct.",text:"Python compares the guess with the secret number and chooses one branch.",points:["if checks one condition.","elif checks another.","else handles the remaining result."],max:20,theme:2,reward:"💎",rewardName:"Enchanted Crystal",code:['if guess < secret_number:','    print("Try higher")','elif guess > secret_number:','    print("Try lower")','else:','    print("Unlocked!")'],q:"What lets Python choose between higher, lower, and correct?",choices:["A conditional statement","A comment","A file"],answer:0,explain:"if / elif / else selects one branch.",badge:"Decision Maker"},
+ {title:"While Loops and Break",story:"The third door repeats its challenge until you succeed. Learn how loops repeat and how break ends them.",text:"The loop repeats the guessing process. break stops it when the answer is correct.",points:["while True repeats.","Each guess is one iteration.","break exits the loop."],max:30,theme:3,reward:"👑",rewardName:"Royal Crown",code:['while True:','    guess = int(input("Guess: "))','    if guess == secret_number:','        break'],q:"Which keyword stops the while True loop?",choices:["input","random","break"],answer:2,explain:"break exits the nearest loop.",badge:"Loop Master"}
 ];
 
-let level=0,lives=3,secret=1,loops=0,score=0,knowledge=0,solved=false,quizPassed=false,soundOn=true,audioCtx=null;
-const mastered=[false,false,false];
+const state={
+ level:0,lives:3,secret:1,loops:0,score:0,xp:0,completed:[false,false,false],bossComplete:false,
+ soundOn:true,autoSave:true,solved:false,quizPassed:false
+};
+let audioCtx=null,pendingAfterLevel="map";
+
 const $=id=>document.getElementById(id);
-const el={mainGame:$("mainGame"),bossSection:$("bossSection"),scene:$("scene"),doors:$("doors"),portal:$("portal"),reward:$("reward"),
-sceneTitle:$("sceneTitle"),sceneSubtitle:$("sceneSubtitle"),guessInput:$("guessInput"),guessBtn:$("guessBtn"),hintBtn:$("hintBtn"),
-retryBtn:$("retryBtn"),nextBtn:$("nextBtn"),feedback:$("feedback"),liveCode:$("liveCode"),traceGuess:$("traceGuess"),
-traceSecret:$("traceSecret"),traceLoop:$("traceLoop"),quiz:$("quiz"),quizQuestion:$("quizQuestion"),choices:$("choices"),
-quizFeedback:$("quizFeedback"),levelStat:$("levelStat"),livesStat:$("livesStat"),gameScore:$("gameScore"),
-knowledgeScore:$("knowledgeScore"),progressBar:$("progressBar"),lessonTitle:$("lessonTitle"),lessonText:$("lessonText"),
-lessonPoints:$("lessonPoints"),lessonBox:$("lessonBox"),masteryBox:$("masteryBox"),levelFlash:$("levelFlash"),
-flashTitle:$("flashTitle"),flashSub:$("flashSub"),soundBtn:$("soundBtn")};
+const screens=["startScreen","loadingScreen","mapScreen","gameScreen","bossScreen","completionScreen"];
+function showScreen(id){screens.forEach(x=>$(x).classList.toggle("hidden",x!==id));window.scrollTo(0,0)}
+function save(){if(state.autoSave)localStorage.setItem("treasureDoor2",JSON.stringify(state))}
+function load(){
+ try{const s=JSON.parse(localStorage.getItem("treasureDoor2"));if(s)Object.assign(state,s)}catch(e){}
+}
+function resetProgress(){state.level=0;state.lives=3;state.loops=0;state.score=0;state.xp=0;state.completed=[false,false,false];state.bossComplete=false;save()}
+function completedCount(){return state.completed.filter(Boolean).length}
+function achievementCount(){return completedCount()+(state.bossComplete?1:0)}
 
 async function ensureAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")await audioCtx.resume()}
-async function note(f,d=.14,type="sine",delay=0,v=.16){if(!soundOn)return;await ensureAudio();const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime+delay;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+d+.03)}
+async function note(f,d=.14,type="sine",delay=0,v=.15){if(!state.soundOn)return;await ensureAudio();const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime+delay;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+d+.03)}
 async function sfx(k){if(k==="click")note(520,.1);if(k==="wrong"){note(185,.2,"square");note(135,.22,"square",.15)}if(k==="right"){note(440,.12);note(660,.14,"sine",.13);note(880,.22,"sine",.28)}if(k==="open"){note(95,.5,"sawtooth",0,.11);note(125,.4,"sawtooth",.08,.09);note(520,.22,"sine",.42)}if(k==="key"){note(700,.1);note(920,.14,"sine",.1)}if(k==="finish"){[523,659,784,1046].forEach((f,i)=>note(f,.24,"sine",i*.15))}}
+function updateSoundUI(){document.querySelectorAll(".soundToggle").forEach(b=>b.textContent=state.soundOn?"🔊 Sound On":"🔇 Sound Off");$("soundSwitch").classList.toggle("on",state.soundOn)}
+document.querySelectorAll(".soundToggle").forEach(b=>b.addEventListener("click",async()=>{state.soundOn=!state.soundOn;updateSoundUI();save();if(state.soundOn){await ensureAudio();sfx("click")}}));
 
-function L(){return levels[level]}
-function stats(){el.levelStat.textContent=`${level+1} / 3`;el.livesStat.textContent="❤️".repeat(lives)+"🖤".repeat(3-lives);el.gameScore.textContent=score;el.knowledgeScore.textContent=`${knowledge} / 3`;el.progressBar.style.width=`${((level+1)/3)*100}%`}
-function renderCode(active=-1){el.liveCode.innerHTML=L().code.map((x,i)=>`<span class="code-line ${i===active?"active":""}">${x.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}</span>`).join("")}
-function setFeedback(t,type=""){el.feedback.textContent=t;el.feedback.className="feedback"+(type?` ${type}`:"")}
+function loading(next){
+ showScreen("loadingScreen");let p=0;$("loadingBar").style.width="0";
+ const timer=setInterval(()=>{p+=10;$("loadingBar").style.width=p+"%";$("loadingText").textContent=p<40?"Loading lessons...":p<75?"Preparing castle doors...":"Preparing your adventure...";
+ if(p>=100){clearInterval(timer);setTimeout(next,250)}},90)
+}
+function startFresh(){resetProgress();loading(()=>{renderMap();showScreen("mapScreen")})}
+function continueGame(){loading(()=>{renderMap();showScreen("mapScreen")})}
+
+function renderMap(){
+ $("mapXP").textContent=state.xp;$("mapLessons").textContent=`${completedCount()} / 3`;$("mapAchievements").textContent=`${achievementCount()} / 4`;
+ const icons=["🗝️","💎","👑","🏰"];
+ const titles=[...levels.map(x=>x.title),"Ancient Vault"];
+ const desc=["Learn variables","Practice decisions","Master loops","Build Python blocks"];
+ $("levelPath").innerHTML="";
+ for(let i=0;i<4;i++){
+  const unlocked=i===0||(i<3&&state.completed[i-1])||(i===3&&completedCount()===3);
+  const done=i<3?state.completed[i]:state.bossComplete;
+  const node=document.createElement("div");node.className="level-node "+(!unlocked?"locked":done?"completed":"current");
+  node.innerHTML=`<div class="node-icon">${icons[i]}</div><div class="node-number">${i<3?i+1:"B"}</div><h3>${titles[i]}</h3><p>${desc[i]}</p>`;
+  const b=document.createElement("button");b.className=unlocked?"primary":"secondary";b.disabled=!unlocked;b.textContent=done?"Replay":unlocked?"Enter":"Locked";
+  b.addEventListener("click",()=>{if(i<3)beginLevel(i);else beginFinal()});
+  node.appendChild(b);$("levelPath").appendChild(node)
+ }
+}
+
+function storyForLevel(i){
+ $("storyTitle").textContent=`Level ${i+1}: ${levels[i].title}`;$("storyText").textContent=levels[i].story;$("storyOverlay").classList.remove("hidden")
+}
+function beginLevel(i){state.level=i;storyForLevel(i)}
+$("storyContinue").addEventListener("click",()=>{$("storyOverlay").classList.add("hidden");loadLevel();showScreen("gameScreen")});
+
+function L(){return levels[state.level]}
+function renderStats(){
+ $("levelStat").textContent=`${state.level+1} / 3`;$("livesStat").textContent="❤️".repeat(state.lives)+"🖤".repeat(3-state.lives);$("gameScore").textContent=state.score;$("gameXP").textContent=state.xp;$("progressBar").style.width=`${((state.level+1)/3)*100}%`
+}
+function renderCode(active=-1){$("liveCode").innerHTML=L().code.map((x,i)=>`<span class="code-line ${i===active?"active":""}">${x.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}</span>`).join("")}
+function feedback(t,type=""){$("feedback").textContent=t;$("feedback").className="feedback"+(type?` ${type}`:"")}
 function loadLevel(){
- lives=3;loops=0;solved=false;quizPassed=false;secret=Math.floor(Math.random()*L().max)+1;
- el.scene.className=`scene theme-${L().theme}`;el.doors.classList.remove("open");el.portal.classList.remove("show");el.scene.classList.remove("won");
- el.reward.classList.remove("show");el.reward.innerHTML=`<div class="reward-art">${L().reward}</div><div class="reward-name">${L().rewardName}</div>`;
- el.sceneTitle.textContent=`Level ${level+1}`;el.sceneSubtitle.textContent=`Guess a whole number from 1 to ${L().max}.`;
- el.lessonTitle.textContent=`Level ${level+1}: ${L().title}`;el.lessonText.textContent=L().text;el.lessonPoints.innerHTML=L().points.map(x=>`<div class="lesson-point"><b>✓</b><span>${x}</span></div>`).join("");
- el.guessInput.value="";el.guessInput.disabled=false;el.guessBtn.disabled=false;el.hintBtn.disabled=false;el.retryBtn.hidden=true;el.nextBtn.hidden=true;el.quiz.hidden=true;
- el.traceGuess.textContent="—";el.traceSecret.textContent="hidden";el.traceLoop.textContent="0";renderCode();setFeedback("Enter a guess when you are ready.");stats();
- el.flashTitle.textContent=`Level ${level+1}`;el.flashSub.textContent=L().title;el.levelFlash.classList.add("show");setTimeout(()=>el.levelFlash.classList.remove("show"),850)
+ state.lives=3;state.loops=0;state.solved=false;state.quizPassed=false;state.secret=Math.floor(Math.random()*L().max)+1;
+ $("scene").className=`scene theme-${L().theme}`;$("doors").classList.remove("open");$("portal").classList.remove("show");$("reward").classList.remove("show");$("reward").innerHTML=`<div class="reward-art">${L().reward}</div><div class="reward-name">${L().rewardName}</div>`;
+ $("sceneTitle").textContent=`Level ${state.level+1}`;$("sceneSubtitle").textContent=`Guess a whole number from 1 to ${L().max}.`;
+ $("lessonTitle").textContent=`Level ${state.level+1}: ${L().title}`;$("lessonText").textContent=L().text;$("lessonPoints").innerHTML=L().points.map(x=>`<div class="lesson-point"><b>✓</b><span>${x}</span></div>`).join("");
+ $("guessInput").value="";$("guessInput").disabled=false;$("guessBtn").disabled=false;$("hintBtn").disabled=false;$("retryBtn").hidden=true;$("quiz").classList.add("hidden");
+ $("traceGuess").textContent="—";$("traceSecret").textContent="hidden";$("traceLoop").textContent="0";renderCode();feedback("Enter a guess when you are ready.");renderStats()
 }
 function guess(){
- if(solved)return;const n=Number(el.guessInput.value);
- if(!Number.isInteger(n)||n<1||n>L().max){setFeedback(`Enter a whole number from 1 to ${L().max}.`,"bad");sfx("wrong");return}
- loops++;el.traceGuess.textContent=n;el.traceLoop.textContent=loops;
- let active=0;if(level===0)active=n===secret?2:1;if(level===1)active=n<secret?1:n>secret?3:5;if(level===2)active=n===secret?3:0;renderCode(active);
- if(n===secret){
-  solved=true;const pts=lives*10;score+=pts;el.traceSecret.textContent=secret;el.doors.classList.add("open");el.portal.classList.add("show");el.reward.classList.add("show");el.scene.classList.add("won");
-  el.guessInput.disabled=true;el.guessBtn.disabled=true;el.hintBtn.disabled=true;setFeedback(`Correct. You earned ${pts} points. Complete the knowledge check.`,"good");sfx("open");setTimeout(()=>sfx("right"),650);stats();setTimeout(showQuiz,650)
+ if(state.solved)return;const n=Number($("guessInput").value);
+ if(!Number.isInteger(n)||n<1||n>L().max){feedback(`Enter a whole number from 1 to ${L().max}.`,"bad");sfx("wrong");return}
+ state.loops++;$("traceGuess").textContent=n;$("traceLoop").textContent=state.loops;
+ let active=0;if(state.level===0)active=n===state.secret?2:1;if(state.level===1)active=n<state.secret?1:n>state.secret?3:5;if(state.level===2)active=n===state.secret?3:0;renderCode(active);
+ if(n===state.secret){
+  state.solved=true;const pts=state.lives*10;state.score+=pts;$("traceSecret").textContent=state.secret;$("doors").classList.add("open");$("portal").classList.add("show");$("reward").classList.add("show");
+  $("guessInput").disabled=true;$("guessBtn").disabled=true;$("hintBtn").disabled=true;feedback(`Correct. You earned ${pts} points. Complete the knowledge check.`,"good");renderStats();sfx("open");setTimeout(()=>sfx("right"),600);setTimeout(showQuiz,650)
  }else{
-  lives--;stats();sfx("wrong");
-  if(lives===0){el.traceSecret.textContent=secret;el.guessInput.disabled=true;el.guessBtn.disabled=true;el.hintBtn.disabled=true;el.retryBtn.hidden=false;setFeedback(`The answer was ${secret}. Review the highlighted code, then retry.`,"bad")}
-  else{setFeedback(`Try ${n<secret?"higher":"lower"}. The loop repeats. ${lives} lives remain.`);el.guessInput.select()}
+  state.lives--;renderStats();sfx("wrong");
+  if(state.lives===0){$("traceSecret").textContent=state.secret;$("guessInput").disabled=true;$("guessBtn").disabled=true;$("hintBtn").disabled=true;$("retryBtn").hidden=false;feedback(`The answer was ${state.secret}. Review the highlighted code, then retry.`,"bad")}
+  else{feedback(`Try ${n<state.secret?"higher":"lower"}. The loop repeats. ${state.lives} lives remain.`);$("guessInput").select()}
  }
 }
-function showQuiz(){el.quiz.hidden=false;el.quizQuestion.textContent=L().q;el.choices.innerHTML="";L().choices.forEach((x,i)=>{const b=document.createElement("button");b.className="choice";b.type="button";b.textContent=x;b.addEventListener("click",()=>answer(i,b));el.choices.appendChild(b)})}
-function answer(i,b){if(quizPassed)return;[...el.choices.children].forEach(x=>x.classList.remove("correct","wrong"));if(i===L().answer){b.classList.add("correct");quizPassed=true;if(!mastered[level]){mastered[level]=true;knowledge++}el.quizFeedback.textContent=`Correct. ${L().explain}`;el.quizFeedback.className="feedback good";el.nextBtn.hidden=false;el.nextBtn.textContent=level===2?"Enter Final Boss":"Next Level";stats();sfx("right")}else{b.classList.add("wrong");el.quizFeedback.textContent=`Not yet. ${L().explain}`;el.quizFeedback.className="feedback bad";sfx("wrong")}}
-function next(){if(!quizPassed)return;if(level<2){level++;loadLevel()}else showBoss()}
+function showQuiz(){
+ $("quiz").classList.remove("hidden");$("quizQuestion").textContent=L().q;$("choices").innerHTML="";
+ L().choices.forEach((x,i)=>{const b=document.createElement("button");b.className="choice";b.textContent=x;b.addEventListener("click",()=>answerQuiz(i,b));$("choices").appendChild(b)})
+}
+function answerQuiz(i,b){
+ if(state.quizPassed)return;[...$("choices").children].forEach(x=>x.classList.remove("correct","wrong"));
+ if(i===L().answer){b.classList.add("correct");state.quizPassed=true;$("quizFeedback").textContent=`Correct. ${L().explain}`;$("quizFeedback").className="feedback good";completeLevel()}else{b.classList.add("wrong");$("quizFeedback").textContent=`Not yet. ${L().explain}`;$("quizFeedback").className="feedback bad";sfx("wrong")}
+}
+function completeLevel(){
+ const first=!state.completed[state.level];state.completed[state.level]=true;const xp=first?100:25;state.xp+=xp;save();
+ $("completeTitle").textContent=`Level ${state.level+1} Complete!`;$("completeText").textContent=`You mastered ${L().title}.`;$("completeScore").textContent=state.score;$("completeXP").textContent=`+${xp}`;$("completeBadge").textContent=L().badge;
+ pendingAfterLevel=state.level===2?"boss":"next";$("levelCompleteOverlay").classList.remove("hidden");sfx("finish")
+}
+$("completeContinue").addEventListener("click",()=>{$("levelCompleteOverlay").classList.add("hidden");if(pendingAfterLevel==="boss")beginFinal();else beginLevel(state.level+1)});
+$("completeMap").addEventListener("click",()=>{$("levelCompleteOverlay").classList.add("hidden");renderMap();showScreen("mapScreen")});
+$("guessBtn").addEventListener("click",async()=>{await ensureAudio();sfx("click");guess()});$("guessInput").addEventListener("keydown",e=>{if(e.key==="Enter")guess()});
+$("hintBtn").addEventListener("click",()=>{feedback(`Hint: The number is ${state.secret%2===0?"even":"odd"} and in the ${state.secret<=L().max/2?"lower":"upper"} half.`);$("hintBtn").disabled=true});
+$("retryBtn").addEventListener("click",loadLevel);
 
-el.guessBtn.addEventListener("click",async()=>{await ensureAudio();sfx("click");guess()});
-el.guessInput.addEventListener("keydown",async e=>{if(e.key==="Enter"){await ensureAudio();guess()}});
-el.hintBtn.addEventListener("click",()=>{setFeedback(`Hint: The number is ${secret%2===0?"even":"odd"} and in the ${secret<=L().max/2?"lower":"upper"} half.`);el.hintBtn.disabled=true});
-el.retryBtn.addEventListener("click",loadLevel);el.nextBtn.addEventListener("click",next);
-$("testSound").addEventListener("click",async()=>{soundOn=true;el.soundBtn.textContent="🔊 Sound On";await ensureAudio();sfx("right")});
-el.soundBtn.addEventListener("click",async()=>{soundOn=!soundOn;el.soundBtn.textContent=soundOn?"🔊 Sound On":"🔇 Sound Off";if(soundOn){await ensureAudio();sfx("click")}});
-
-/* Drag block boss */
-const solution=["init","while","increment","decision","open"];
-const placed=[null,null,null,null,null];
-const blockInfo={
- init:{label:"keys = 0",cls:"variable"},
- while:{label:"while keys < 3:",cls:"loop"},
- increment:{label:"keys += 1",cls:"operation"},
- decision:{label:"if / elif / else",cls:"condition"},
- open:{label:'action = "Open the vault"',cls:"action"}
-};
+/* BOSS */
+const solution=["init","while","increment","decision","open"],placed=[null,null,null,null,null];
+const blockInfo={init:{label:"keys = 0",cls:"variable"},while:{label:"while keys < 3:",cls:"loop"},increment:{label:"keys += 1",cls:"operation"},decision:{label:"if / elif / else",cls:"condition"},open:{label:'action = "Open the vault"',cls:"action"}};
 const slots=[...document.querySelectorAll(".program-slot")];
-document.querySelectorAll(".block").forEach(b=>{
- b.addEventListener("dragstart",e=>{b.classList.add("dragging");e.dataTransfer.setData("text/plain",b.dataset.id)});
- b.addEventListener("dragend",()=>b.classList.remove("dragging"));
-});
-slots.forEach((s,i)=>{
- s.addEventListener("dragover",e=>{e.preventDefault();s.classList.add("over")});
- s.addEventListener("dragleave",()=>s.classList.remove("over"));
- s.addEventListener("drop",e=>{e.preventDefault();s.classList.remove("over");placeBlock(i,e.dataTransfer.getData("text/plain"))});
-});
-function placeBlock(i,id){
- if(!blockInfo[id])return;
- const old=placed.indexOf(id);if(old>=0)placed[old]=null;
- placed[i]=id;renderSlots();renderGenerated();sfx("click")
-}
-function renderSlots(){
- slots.forEach((s,i)=>{
-  const id=placed[i];
-  if(!id){s.classList.remove("filled");s.innerHTML=`<span class="slot-label">${i+1}</span><span>${["Initialize a variable","Start a loop","Repeat an action","Make a decision","Choose the successful action"][i]}</span>`;return}
-  s.classList.add("filled");s.innerHTML=`<span class="slot-label">${i+1}</span><span class="slot-block ${blockInfo[id].cls}">${blockInfo[id].label}</span><button class="remove-block" type="button">×</button>`;
-  s.querySelector("button").addEventListener("click",()=>{placed[i]=null;renderSlots();renderGenerated()})
- })
-}
-function generatedLines(){
- const lines=[];
- placed.forEach(id=>{
-  if(id==="init")lines.push("keys = 0");
-  if(id==="while")lines.push("while keys < 3:");
-  if(id==="increment")lines.push("    keys += 1");
-  if(id==="decision")lines.push('if keys == 0:','    action = "No entry"','elif keys < 3:','    action = "Find more keys"','else:');
-  if(id==="open")lines.push('    action = "Open the vault"','print(action)');
- });
- return lines
-}
-function renderGenerated(active=-1){
- const lines=generatedLines();$("generatedCode").innerHTML=lines.length?lines.map((x,i)=>`<span class="python-line ${i===active?"active":""}">${x.replaceAll("<","&lt;").replaceAll(">","&gt;")}</span>`).join(""):"# Drag blocks to build your program..."
-}
-let hintStep=0;
-const hints=[
- "Start by setting a variable to zero. Look for the orange variable block.",
- "A loop should come next. It repeats until three keys have been collected.",
- "The green operation belongs inside the loop, so place it in the indented slot.",
- "After the loop, use the blue decision block.",
- "The successful action belongs under the decision in the final indented slot."
-];
-$("hintBoss").addEventListener("click",()=>{$("hintBox").classList.add("show");$("hintBox").textContent=hints[Math.min(hintStep,hints.length-1)];hintStep++;sfx("click")});
-$("resetBoss").addEventListener("click",()=>{placed.fill(null);hintStep=0;renderSlots();renderGenerated();$("hintBox").classList.remove("show");resetBossStage();$("bossConsole").textContent="Ready. Build the program, then run it."});
-$("solutionBoss").addEventListener("click",()=>{if(confirm("Show the complete solution? Try the hints first when possible.")){solution.forEach((x,i)=>placed[i]=x);renderSlots();renderGenerated();$("bossConsole").textContent="Solution placed. Study the generated Python, then run it."}});
-function resetBossStage(){
- $("bossStage").classList.remove("won");$("vaultDoor").classList.remove("open");$("magicLocks").classList.remove("hide");document.querySelectorAll(".magic-lock").forEach(x=>x.classList.remove("on"));
- document.querySelectorAll(".key-flight").forEach(x=>{x.classList.remove("fly");void x.offsetWidth});$("bossKeys").textContent="0 / 3";$("bossLoops").textContent="0";$("bossDecision").textContent="Waiting";$("bossSpeech").textContent="Build a program that collects three keys and opens the vault.";$("medalOverlay").classList.remove("show");
- if($("completionScreen"))$("completionScreen").classList.remove("show")
-}
-$("runBoss").addEventListener("click",async()=>{
- await ensureAudio();resetBossStage();
- if(JSON.stringify(placed)!==JSON.stringify(solution)){
-  $("bossConsole").textContent="The program is not complete yet.\n\nCheck the logical order:\n1. Initialize\n2. Loop\n3. Increase keys\n4. Decision\n5. Open vault";
-  $("bossSpeech").textContent="The spell blocks are out of order. Use a hint and try again.";sfx("wrong");return
- }
+document.querySelectorAll(".block").forEach(b=>{b.addEventListener("dragstart",e=>e.dataTransfer.setData("text/plain",b.dataset.id))});
+slots.forEach((s,i)=>{s.addEventListener("dragover",e=>{e.preventDefault();s.classList.add("over")});s.addEventListener("dragleave",()=>s.classList.remove("over"));s.addEventListener("drop",e=>{e.preventDefault();s.classList.remove("over");placeBlock(i,e.dataTransfer.getData("text/plain"))})});
+function placeBlock(i,id){if(!blockInfo[id])return;const old=placed.indexOf(id);if(old>=0)placed[old]=null;placed[i]=id;renderSlots();renderGenerated();sfx("click")}
+function renderSlots(){const prompts=["Initialize a variable","Start a loop","Repeat an action","Make a decision","Choose the successful action"];slots.forEach((s,i)=>{const id=placed[i];if(!id){s.classList.remove("filled");s.innerHTML=`<span class="slot-label">${i+1}</span><span>${prompts[i]}</span>`}else{s.classList.add("filled");s.innerHTML=`<span class="slot-label">${i+1}</span><span class="slot-block ${blockInfo[id].cls}">${blockInfo[id].label}</span><button class="remove-block">×</button>`;s.querySelector("button").onclick=()=>{placed[i]=null;renderSlots();renderGenerated()}}})}
+function generatedLines(){const lines=[];placed.forEach(id=>{if(id==="init")lines.push("keys = 0");if(id==="while")lines.push("while keys < 3:");if(id==="increment")lines.push("    keys += 1");if(id==="decision")lines.push('if keys == 0:','    action = "No keys"','elif keys < 3:','    action = "Need more keys"','else:');if(id==="open")lines.push('    action = "Open the vault"','print(action)')});return lines}
+function renderGenerated(active=-1){const lines=generatedLines();$("generatedCode").innerHTML=lines.length?lines.map((x,i)=>`<span class="python-line ${i===active?"active":""}">${x.replaceAll("<","&lt;").replaceAll(">","&gt;")}</span>`).join(""):"# Drag blocks to build your program..."}
+let hintStep=0;const hints=["Start with the orange variable block.","Place the purple while loop next.","The green increment belongs in the indented slot.","Use the blue decision block after the loop.","Finish with the gold Open the vault block."];
+$("hintFinal").onclick=()=>{$("hintBox").classList.add("show");$("hintBox").textContent=hints[Math.min(hintStep++,hints.length-1)]};
+$("resetFinal").onclick=()=>{placed.fill(null);hintStep=0;renderSlots();renderGenerated();$("hintBox").classList.remove("show");resetFinalStage()};
+$("solutionFinal").onclick=()=>{if(confirm("Show the complete solution?")){solution.forEach((x,i)=>placed[i]=x);renderSlots();renderGenerated()}};
+function resetFinalStage(){$("bossStage").classList.remove("won");$("vaultDoor").classList.remove("open");$("magicLocks").classList.remove("hide");document.querySelectorAll(".magic-lock").forEach(x=>x.classList.remove("on"));document.querySelectorAll(".key-flight").forEach(x=>{x.classList.remove("fly");void x.offsetWidth});$("bossKeys").textContent="0 / 3";$("bossLoops").textContent="0";$("bossDecision").textContent="Waiting";$("bossSpeech").textContent="Build a program that collects three keys and opens the vault.";$("bossConsole").textContent="Ready. Build the program, then run it."}
+function beginFinal(){showScreen("bossScreen");renderSlots();renderGenerated();resetFinalStage()}
+$("runFinal").onclick=async()=>{
+ await ensureAudio();resetFinalStage();
+ if(JSON.stringify(placed)!==JSON.stringify(solution)){$("bossConsole").textContent="The blocks are not in the correct order yet.";$("bossSpeech").textContent="Use a hint and try again.";sfx("wrong");return}
  $("bossConsole").textContent="Running program...\n";$("bossSpeech").textContent="The while loop is collecting keys...";
- let k=0;
- const timer=setInterval(()=>{
-  k++;$("bossKeys").textContent=`${k} / 3`;$("bossLoops").textContent=k;$("bossConsole").textContent+=`Loop ${k}: keys = ${k}\n`;
-  document.querySelector(`.k${k}`).classList.add("fly");setTimeout(()=>document.querySelector(`#ml${k}`).classList.add("on"),650);sfx("key");
-  renderGenerated(k===1?1:k===2?2:2);
-  if(k===3){
-   clearInterval(timer);
-   setTimeout(()=>{
-    $("bossConsole").textContent+='\nif keys == 0 → False\nelif keys < 3 → False\nelse → Open the vault';
-    $("bossDecision").textContent="Open the vault";$("bossSpeech").textContent="Your decision is correct. The vault may open!";renderGenerated(8);
-    setTimeout(()=>{
-      $("magicLocks").classList.add("hide");$("vaultDoor").classList.add("open");$("bossStage").classList.add("won");sfx("open");
-      $("bossConsole").textContent+="\n\nProgram finished successfully.";
-      setTimeout(()=>{
-        sfx("finish");
-        $("medalOverlay").classList.add("show");
-      },1100)
-    },800)
-   },700)
-  }
- },700)
-});
-$("closeMedal").addEventListener("click",()=>{
-  $("medalOverlay").classList.remove("show");
-  $("completionScreen").classList.add("show");
-});
-$("playAgainBtn").addEventListener("click",()=>{
-  $("completionScreen").classList.remove("show");
-  placed.fill(null);
-  hintStep=0;
-  renderSlots();
-  renderGenerated();
-  resetBossStage();
-  $("bossConsole").textContent="Ready. Build the program, then run it.";
-  window.scrollTo({top:0,behavior:"smooth"});
-});
-$("backStartBtn").addEventListener("click",()=>location.reload());
-$("exitGameBtn").addEventListener("click",()=>{
-  try{window.close()}catch(e){}
-  $("exitMessage").classList.add("show");
-});
-$("restartAll").addEventListener("click",()=>location.reload());
+ let k=0;const timer=setInterval(()=>{k++;$("bossKeys").textContent=`${k} / 3`;$("bossLoops").textContent=k;$("bossConsole").textContent+=`Loop ${k}: keys = ${k}\n`;document.querySelector(`.k${k}`).classList.add("fly");setTimeout(()=>document.querySelector(`#ml${k}`).classList.add("on"),650);sfx("key");
+ if(k===3){clearInterval(timer);setTimeout(()=>{$("bossConsole").textContent+='\nif keys == 0 → False\nelif keys < 3 → False\nelse → Open the vault';$("bossDecision").textContent="Open the vault";$("bossSpeech").textContent="The decision is correct. The vault can open!";
+ setTimeout(()=>{$("magicLocks").classList.add("hide");$("vaultDoor").classList.add("open");$("bossStage").classList.add("won");sfx("open");setTimeout(()=>{state.bossComplete=true;state.xp+=300;save();sfx("finish");showScreen("completionScreen")},1600)},800)},700)}},700)
+};
 
-function showBoss(){
- el.mainGame.style.display="none";el.bossSection.classList.add("show");window.scrollTo({top:0,behavior:"smooth"});resetBossStage();renderSlots();renderGenerated();sfx("finish")
-}
-loadLevel();
+/* COMPLETION */
+$("replayFinalBtn").onclick=()=>beginFinal();
+$("restartAdventureBtn").onclick=()=>{resetProgress();loading(()=>{renderMap();showScreen("mapScreen")})};
+$("returnMapBtn").onclick=()=>{renderMap();showScreen("mapScreen")};
+$("exitBtn").onclick=()=>{try{window.close()}catch(e){}$("exitNote").classList.add("show")};
+
+/* NAV + MODALS */
+$("startGameBtn").onclick=startFresh;$("continueBtn").onclick=continueGame;$("howBtn").onclick=()=>$("howModal").classList.remove("hidden");$("settingsBtn").onclick=()=>$("settingsModal").classList.remove("hidden");
+document.querySelectorAll(".closeModal").forEach(b=>b.onclick=()=>{b.closest(".overlay").classList.add("hidden")});
+$("soundSwitch").onclick=()=>{state.soundOn=!state.soundOn;updateSoundUI();save()};
+$("saveSwitch").onclick=()=>{state.autoSave=!state.autoSave;$("saveSwitch").classList.toggle("on",state.autoSave);save()};
+$("mapHomeBtn").onclick=()=>showScreen("startScreen");$("gameMapBtn").onclick=()=>{renderMap();showScreen("mapScreen")};$("bossMapBtn").onclick=()=>{renderMap();showScreen("mapScreen")};
+
+load();updateSoundUI();$("saveSwitch").classList.toggle("on",state.autoSave);$("continueBtn").style.display=completedCount()||state.bossComplete?"block":"none";renderSlots();renderGenerated();
 })();
 </script>
 </body>
