@@ -1,0 +1,680 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Treasure Door | CogniPlay Dynamics</title>
+<style>
+:root{
+  --bg:#03111f;--panel:#08233b;--panel2:#0d2d48;--text:#f5fbff;--muted:#b8ccda;
+  --teal:#2cc8cb;--gold:#ffc95c;--good:#71e0a5;--bad:#ff7a7a;--line:rgba(255,255,255,.12);
+  --purple:#9d7cff;--blue:#4fb8ff;--green:#54d68d;--orange:#ff9c59
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;color:var(--text);font-family:Arial,Helvetica,sans-serif;
+  background:
+    linear-gradient(rgba(2,10,18,.88),rgba(2,10,18,.94)),
+    url("./treasure-door-cover.png") center top / cover fixed no-repeat,
+    #03111f;
+}
+button,input{font:inherit}button{cursor:pointer}
+.wrap{width:min(1240px,95%);margin:auto;padding:22px 0 38px}
+header{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:14px;border-bottom:1px solid rgba(44,200,203,.18);margin-bottom:18px}
+.brand strong{display:block;color:var(--gold);font-size:1.2rem}
+.brand span{display:block;color:var(--teal);font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;margin-top:3px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.sound{border:1px solid rgba(44,200,203,.55);background:rgba(44,200,203,.1);color:var(--teal);border-radius:999px;padding:8px 12px}
+
+.layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:20px}
+.panel{background:rgba(7,28,47,.88);backdrop-filter:blur(12px);border:1px solid rgba(44,200,203,.25);border-radius:20px;padding:20px}
+.eyebrow{color:var(--teal);font-weight:800;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+h1{font-size:clamp(2.2rem,5vw,4rem);line-height:.97;color:var(--gold);margin:0 0 14px}
+h2,h3,p{margin-top:0}
+.lead{line-height:1.6;color:#e5f0f6}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:18px 0}
+.stat{padding:10px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.04);text-align:center}
+.stat small{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.stat strong{font-size:1.05rem}
+.progress{height:9px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin-bottom:18px}
+.progress>div{height:100%;width:33.33%;background:var(--teal);transition:.35s}
+.lesson{padding:17px;border-left:4px solid var(--teal);background:rgba(44,200,203,.08);border-radius:11px}
+.lesson h2{font-size:1.18rem;color:var(--gold);margin-bottom:8px}
+.lesson p{color:var(--muted);line-height:1.55}
+.lesson-points{display:grid;gap:8px;margin-top:10px}
+.lesson-point{display:flex;gap:8px}.lesson-point b{color:var(--teal)}
+.mastery{display:none}.mastery.show{display:block}
+.skill-list{display:grid;gap:8px;margin:14px 0}.skill{padding:9px;border:1px solid var(--line);border-radius:9px}.pass{color:var(--good)}
+
+.scene{
+  position:relative;min-height:490px;border:1px solid rgba(255,201,92,.25);border-radius:17px;overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 35%,rgba(255,201,92,.12),transparent 26%),
+    linear-gradient(#0a2033,#0a1b2a 61%,#131820 61%);
+}
+.scene:before{content:"";position:absolute;inset:0;opacity:.24;background:
+  repeating-linear-gradient(0deg,transparent 0 50px,rgba(255,255,255,.03) 50px 53px),
+  repeating-linear-gradient(90deg,transparent 0 84px,rgba(255,255,255,.025) 84px 88px)}
+.scene.theme-2{background:radial-gradient(circle at 50% 35%,rgba(73,204,255,.18),transparent 28%),linear-gradient(#081d31,#0b263d 61%,#121a21 61%)}
+.scene.theme-3{background:radial-gradient(circle at 50% 35%,rgba(184,106,255,.17),transparent 28%),linear-gradient(#150f24,#1c1430 61%,#18131e 61%)}
+.scene-title{position:absolute;left:18px;top:16px;z-index:8}.scene-title h2{margin:0}.scene-title p{margin:4px 0 0;color:var(--muted)}
+.arch{position:absolute;left:50%;top:82px;transform:translateX(-50%);width:300px;height:350px;border:24px solid #6d767c;border-bottom-width:30px;border-radius:155px 155px 12px 12px;z-index:3;box-shadow:inset 0 0 0 6px #30383e}
+.theme-2 .arch{border-color:#428ca7}.theme-3 .arch{border-color:#ad8c3b}
+.doors{position:absolute;left:50%;top:106px;transform:translateX(-50%);width:252px;height:300px;z-index:5;perspective:900px}
+.door-half{position:absolute;top:0;width:50%;height:100%;background:repeating-linear-gradient(90deg,#724018 0 21px,#583014 21px 25px);border:5px solid #a66a2b;transition:.85s;backface-visibility:hidden}
+.door-half.left{left:0;transform-origin:left center;border-radius:120px 0 0 8px}.door-half.right{right:0;transform-origin:right center;border-radius:0 120px 8px 0}
+.theme-2 .door-half{background:repeating-linear-gradient(0deg,#155573 0 31px,#0d425d 31px 35px);border-color:#68cbe2}
+.theme-3 .door-half{background:repeating-linear-gradient(90deg,#1d172f 0 21px,#302142 21px 25px);border-color:#d6ad48}
+.doors.open .left{transform:rotateY(-106deg)}.doors.open .right{transform:rotateY(106deg)}
+.portal{position:absolute;left:50%;top:112px;transform:translateX(-50%);width:235px;height:286px;border-radius:50%;background:radial-gradient(circle,#fff1a0,rgba(255,197,66,.45),transparent 70%);opacity:0;transition:.7s .25s;z-index:2}
+.portal.show{opacity:1}
+.reward{position:absolute;left:50%;top:210px;transform:translateX(-50%) scale(.6);opacity:0;z-index:4;transition:.7s .55s;text-align:center}
+.reward.show{opacity:1;transform:translateX(-50%) scale(1)}
+.reward-art{font-size:78px;filter:drop-shadow(0 0 18px rgba(255,215,90,.9))}
+.reward-name{display:inline-block;margin-top:8px;padding:6px 12px;border:1px solid rgba(255,201,92,.5);border-radius:999px;color:var(--gold);background:rgba(2,14,24,.8);font-weight:800}
+.spark{position:absolute;width:7px;height:7px;border-radius:50%;background:#ffe88d;opacity:0;z-index:7}.scene.won .spark{opacity:1;animation:spark 1.4s infinite}
+.s1{left:42%;top:38%}.s2{left:58%;top:32%;animation-delay:.3s!important}.s3{left:50%;top:50%;animation-delay:.6s!important}
+@keyframes spark{0%{opacity:0;transform:scale(.2)}50%{opacity:1}100%{opacity:0;transform:translateY(-45px) scale(1.2)}}
+
+.game-ui{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:13px}
+input{width:100%;border:1px solid rgba(44,200,203,.55);border-radius:11px;padding:12px;background:rgba(255,255,255,.06);color:white}
+.primary,.secondary{border-radius:11px;padding:11px 15px;font-weight:800}
+.primary{border:0;background:var(--teal);color:#00272a}.secondary{border:1px solid rgba(44,200,203,.55);background:transparent;color:var(--teal)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.feedback{min-height:56px;margin-top:12px;padding:12px;border-left:4px solid var(--teal);background:rgba(255,255,255,.05);border-radius:10px;line-height:1.48}
+.feedback.good{border-color:var(--good);background:rgba(113,224,165,.08)}.feedback.bad{border-color:var(--bad);background:rgba(255,122,122,.08)}
+.inspector{margin-top:13px;border-top:1px solid var(--line);padding-top:13px}
+.inspector-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px}.inspector h3{margin:0;color:var(--gold)}
+.code-box{background:#020b14;border:1px solid var(--line);border-radius:11px;padding:12px;color:#d9f8fa;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.5}
+.code-line{display:block;padding:3px 6px;border-radius:5px}.code-line.active{background:rgba(255,201,92,.18);color:#fff1bd}
+.trace{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.trace div{background:rgba(255,255,255,.04);padding:8px;border-radius:8px;text-align:center}.trace small{display:block;color:var(--muted)}
+.quiz{margin-top:13px;border-top:1px solid var(--line);padding-top:13px}.choices{display:grid;gap:7px}
+.choice{text-align:left;border:1px solid var(--line);background:rgba(255,255,255,.05);color:white;border-radius:10px;padding:10px;font-weight:700}
+.choice.correct{border-color:var(--good);background:rgba(113,224,165,.12)}.choice.wrong{border-color:var(--bad);background:rgba(255,122,122,.12)}
+
+.level-flash{position:absolute;inset:0;display:grid;place-items:center;background:rgba(2,12,21,.85);z-index:20;opacity:0;pointer-events:none;transition:.35s}.level-flash.show{opacity:1}
+.level-flash div{text-align:center}.level-flash strong{display:block;color:var(--gold);font-size:2.2rem}.level-flash span{color:var(--muted)}
+
+/* FINAL BLOCK BOSS */
+.boss{display:none}.boss.show{display:block}
+.boss-head{margin-bottom:14px}.boss-head h2{color:var(--gold);margin-bottom:6px}.boss-head p{color:var(--muted);line-height:1.55}
+.boss-grid{display:grid;grid-template-columns:240px 1fr 340px;gap:14px}
+.toolbox,.workspace,.python-live{background:rgba(5,23,39,.96);border:1px solid rgba(44,200,203,.25);border-radius:15px;padding:14px}
+.toolbox h3,.workspace h3,.python-live h3{color:var(--gold);margin-bottom:10px}
+.block-group{margin-bottom:14px}.block-group small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.block{
+  position:relative;margin:7px 0;padding:10px 12px;border-radius:9px 9px 9px 3px;color:#07111b;font-weight:800;
+  cursor:grab;user-select:none;box-shadow:inset 0 -3px rgba(0,0,0,.16)
+}
+.block:before{content:"";position:absolute;left:-5px;top:11px;width:10px;height:18px;border-radius:5px;background:inherit}
+.block.variable{background:var(--orange)}.block.loop{background:var(--purple)}.block.operation{background:var(--green)}.block.condition{background:var(--blue)}.block.action{background:var(--gold)}
+.block.dragging{opacity:.45}
+.workspace{min-height:520px}
+.program-slot{
+  min-height:54px;margin:9px 0;border:2px dashed #47667b;border-radius:10px;padding:9px 10px;color:#7590a2;
+  display:flex;align-items:center;transition:.2s
+}
+.program-slot.over{border-color:var(--gold);background:rgba(255,201,92,.08)}
+.program-slot.filled{border-style:solid;color:white;background:#102a40}
+.program-slot.indent{margin-left:26px}
+.slot-label{font-size:.8rem;color:#8ba3b4;margin-right:8px}
+.slot-block{flex:1;padding:8px 10px;border-radius:8px;color:#07111b;font-weight:800}
+.remove-block{border:0;background:rgba(255,255,255,.12);color:white;border-radius:7px;padding:5px 8px;margin-left:7px}
+.boss-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hint-box{display:none;margin-top:10px;padding:10px;border-left:4px solid var(--gold);background:rgba(255,201,92,.08);border-radius:9px;color:#f6e8b9;line-height:1.45}.hint-box.show{display:block}
+.python-code{min-height:300px;background:#020b14;border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;color:#d8f6f7;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.55}
+.python-line{display:block;padding:2px 5px;border-radius:4px}.python-line.active{background:rgba(255,201,92,.2);color:#fff2bf}
+.boss-console{margin-top:10px;min-height:92px;background:#041019;border:1px solid var(--line);border-radius:10px;padding:10px;color:#a8f0b8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}
+
+.boss-stage{
+  position:relative;min-height:520px;margin-top:14px;border:1px solid rgba(255,201,92,.28);border-radius:16px;overflow:hidden;
+  background:radial-gradient(circle at 50% 35%,rgba(255,201,92,.11),transparent 28%),linear-gradient(#0b2033,#0a1723 64%,#141920 64%)
+}
+.boss-stage:before{content:"";position:absolute;inset:0;opacity:.23;background:
+ repeating-linear-gradient(0deg,transparent 0 54px,rgba(255,255,255,.03) 54px 57px),
+ repeating-linear-gradient(90deg,transparent 0 88px,rgba(255,255,255,.025) 88px 92px)}
+.guard{position:absolute;left:38px;bottom:90px;font-size:78px;z-index:5}.wizard{position:absolute;left:138px;bottom:90px;font-size:66px;z-index:5}
+.speech{position:absolute;left:28px;bottom:205px;max-width:225px;background:#f8fbff;color:#122334;border-radius:13px;padding:10px 12px;font-weight:700;z-index:8}
+.vault-arch{position:absolute;left:62%;top:65px;transform:translateX(-50%);width:280px;height:340px;border:23px solid #68747d;border-bottom-width:29px;border-radius:145px 145px 12px 12px;z-index:3}
+.vault-door{position:absolute;left:62%;top:89px;transform:translateX(-50%);width:232px;height:292px;z-index:5;perspective:900px}
+.v-half{position:absolute;top:0;width:50%;height:100%;background:repeating-linear-gradient(90deg,#263640 0 20px,#17242c 20px 24px);border:5px solid #9aaab4;transition:.9s}
+.v-half.left{left:0;transform-origin:left center;border-radius:115px 0 0 8px}.v-half.right{right:0;transform-origin:right center;border-radius:0 115px 8px 0}
+.vault-door.open .left{transform:rotateY(-108deg)}.vault-door.open .right{transform:rotateY(108deg)}
+.magic-locks{position:absolute;left:62%;top:165px;transform:translateX(-50%);display:grid;gap:14px;z-index:9;transition:.5s}
+.magic-locks.hide{opacity:0;transform:translateX(-50%) scale(.45)}
+.magic-lock{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:4px solid #6c7b84;background:#17232b;color:#72818a;transition:.4s}
+.magic-lock.on{background:#ffe58a;border-color:var(--gold);color:#2d2304;box-shadow:0 0 22px rgba(255,201,92,.8)}
+.key-flight{position:absolute;left:225px;bottom:138px;font-size:36px;opacity:0;z-index:10}
+.key-flight.fly{animation:keyfly 1s ease-in-out forwards}
+.key-flight.k2{animation-delay:.18s}.key-flight.k3{animation-delay:.36s}
+@keyframes keyfly{0%{opacity:0;transform:translate(0,0) rotate(0)}20%{opacity:1}100%{opacity:1;transform:translate(360px,-175px) rotate(540deg)}}
+.vault-glow{position:absolute;left:62%;top:100px;transform:translateX(-50%);width:205px;height:270px;border-radius:50%;background:radial-gradient(circle,#fff5ad,rgba(255,201,92,.42),transparent 72%);opacity:0;transition:.7s .4s;z-index:2}
+.boss-stage.won .vault-glow{opacity:1}
+.treasure-hall{position:absolute;left:62%;top:210px;transform:translateX(-50%) scale(.55);opacity:0;z-index:4;transition:.75s .7s;text-align:center}
+.boss-stage.won .treasure-hall{opacity:1;transform:translateX(-50%) scale(1)}
+.treasure-art{font-size:62px;white-space:nowrap;filter:drop-shadow(0 0 18px rgba(255,218,95,.9))}
+.treasure-tag{display:inline-block;margin-top:7px;padding:6px 11px;border:1px solid rgba(255,201,92,.5);border-radius:999px;background:rgba(2,14,23,.8);color:var(--gold);font-weight:800}
+.stage-status{position:absolute;left:18px;right:18px;bottom:15px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;z-index:12}
+.stage-status div{padding:9px;border-radius:9px;background:rgba(2,14,23,.8);border:1px solid var(--line);text-align:center}.stage-status small{display:block;color:var(--muted)}
+.medal-overlay{position:absolute;inset:0;display:grid;place-items:center;background:rgba(2,8,13,.84);z-index:25;opacity:0;pointer-events:none;transition:.5s}
+.medal-overlay.show{opacity:1;pointer-events:auto}
+.medal-card{width:min(470px,90%);text-align:center;padding:28px 24px;border-radius:22px;background:
+ radial-gradient(circle at 50% 10%,rgba(255,231,129,.22),transparent 35%),linear-gradient(#15324b,#0c2032);
+ border:2px solid rgba(255,201,92,.6);box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.medal-ring{width:130px;height:130px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;
+ background:radial-gradient(circle,#fff2a1 0 32%,#ffc94f 33% 58%,#8d6112 59% 68%,#f3c44e 69%);
+ box-shadow:0 0 0 8px rgba(255,201,92,.12),0 0 34px rgba(255,201,92,.55)}
+.medal-ring span{font-size:58px}
+.medal-card h2{color:var(--gold);margin:8px 0}.medal-card p{color:var(--muted);line-height:1.5}
+.badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0}.badges span{padding:6px 9px;border-radius:999px;background:rgba(255,255,255,.06);color:#e7f3f8}
+.xp{font-size:1.35rem;color:var(--good);font-weight:900;margin:10px 0}
+
+footer{text-align:center;color:#8ea7b7;font-size:.84rem;padding:25px 8px 2px}
+@media(max-width:1050px){.boss-grid{grid-template-columns:1fr 1fr}.python-live{grid-column:1/-1}.layout{grid-template-columns:1fr}}
+@media(max-width:700px){.boss-grid{grid-template-columns:1fr}.python-live{grid-column:auto}.stats{grid-template-columns:repeat(2,1fr)}.game-ui{grid-template-columns:1fr}.trace{grid-template-columns:1fr}.stage-status{grid-template-columns:1fr}.boss-stage{min-height:600px}.vault-arch{left:65%;transform:translateX(-50%) scale(.82);transform-origin:top center}.vault-door{left:65%;transform:translateX(-50%) scale(.82);transform-origin:top center}.magic-locks{left:65%}.vault-glow,.treasure-hall{left:65%}}
+
+/* Refined final-vault layout */
+.boss-stage{
+  background:
+    linear-gradient(rgba(3,12,22,.34),rgba(3,12,22,.52)),
+    url("./treasure-door-cover.png") center 48% / cover no-repeat;
+}
+.vault-arch{left:57%;top:52px;width:330px;height:390px}
+.vault-door{left:57%;top:79px;width:280px;height:335px}
+.magic-locks{
+  left:41%;top:148px;transform:none;display:grid;gap:23px;
+  transition:opacity .45s,transform .45s;
+}
+.magic-locks.hide{opacity:0;transform:scale(.5)}
+.magic-lock{width:50px;height:50px;border-width:5px}
+.key-flight{left:250px;bottom:150px}
+@keyframes keyfly1{
+  0%{opacity:0;transform:translate(0,0) rotate(0)}
+  18%{opacity:1}
+  100%{opacity:1;transform:translate(270px,-205px) rotate(540deg)}
+}
+@keyframes keyfly2{
+  0%{opacity:0;transform:translate(0,0) rotate(0)}
+  18%{opacity:1}
+  100%{opacity:1;transform:translate(270px,-135px) rotate(540deg)}
+}
+@keyframes keyfly3{
+  0%{opacity:0;transform:translate(0,0) rotate(0)}
+  18%{opacity:1}
+  100%{opacity:1;transform:translate(270px,-65px) rotate(540deg)}
+}
+.key-flight.k1.fly{animation:keyfly1 1s ease-in-out forwards}
+.key-flight.k2.fly{animation:keyfly2 1s .12s ease-in-out forwards}
+.key-flight.k3.fly{animation:keyfly3 1s .24s ease-in-out forwards}
+.vault-glow{left:57%;top:95px;width:250px;height:300px}
+.treasure-hall{
+  left:57%;top:175px;z-index:4;
+  width:240px;
+}
+.treasure-art{
+  font-size:54px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  white-space:normal;
+  align-items:center;
+  justify-items:center;
+}
+.treasure-art span{display:block;filter:drop-shadow(0 0 12px rgba(255,218,95,.9))}
+.treasure-tag{font-size:.78rem;margin-top:9px}
+.boss-stage.won .vault-door{z-index:3}
+.boss-stage.won .treasure-hall{z-index:6}
+
+/* Full commercial completion screen */
+.completion-screen{
+  position:absolute;inset:0;z-index:35;display:none;
+  background:
+    linear-gradient(rgba(2,9,16,.35),rgba(2,9,16,.72)),
+    url("./treasure-door-cover.png") center / cover no-repeat;
+  padding:18px;
+  overflow:auto;
+}
+.completion-screen.show{display:block}
+.completion-shell{
+  min-height:100%;
+  border:1px solid rgba(255,201,92,.42);
+  border-radius:18px;
+  background:rgba(4,16,27,.86);
+  backdrop-filter:blur(12px);
+  padding:18px;
+  display:grid;
+  grid-template-columns:230px 1fr 300px;
+  grid-template-rows:auto 1fr auto;
+  gap:14px;
+}
+.completion-title{
+  grid-column:1/-1;
+  text-align:center;
+  color:var(--gold);
+  font-size:clamp(2rem,5vw,4rem);
+  font-weight:900;
+  text-shadow:0 4px 18px rgba(255,170,0,.55);
+}
+.completion-lessons,.completion-code,.completion-reward,.completion-actions{
+  border:1px solid rgba(44,200,203,.22);
+  border-radius:14px;
+  background:rgba(4,18,31,.85);
+  padding:14px;
+}
+.completion-lessons h3,.completion-code h3,.completion-actions h3{color:var(--teal);margin-bottom:12px}
+.lesson-done{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.lesson-done:last-child{border-bottom:0}
+.lesson-number{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--teal);color:#052026;font-weight:900}
+.done-check{margin-left:auto;color:var(--good);font-size:1.4rem}
+.completion-reward{
+  position:relative;
+  display:grid;
+  place-items:center;
+  min-height:380px;
+  background:
+    radial-gradient(circle at 50% 48%,rgba(255,205,72,.28),transparent 40%),
+    rgba(4,18,31,.76);
+}
+.final-vault-room{position:relative;width:330px;height:330px;max-width:100%}
+.final-arch{position:absolute;inset:8px 25px 0;border:22px solid #626d75;border-bottom-width:27px;border-radius:150px 150px 10px 10px}
+.final-door-left,.final-door-right{
+  position:absolute;top:33px;width:110px;height:260px;
+  background:repeating-linear-gradient(90deg,#263640 0 19px,#17242c 19px 23px);
+  border:5px solid #9aaab4;
+}
+.final-door-left{left:29px;transform:perspective(700px) rotateY(-70deg);transform-origin:left center}
+.final-door-right{right:29px;transform:perspective(700px) rotateY(70deg);transform-origin:right center}
+.final-treasure{
+  position:absolute;left:50%;top:105px;transform:translateX(-50%);
+  width:190px;text-align:center;z-index:4;
+}
+.final-treasure-icons{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;font-size:42px}
+.final-treasure-icons span{filter:drop-shadow(0 0 12px rgba(255,220,95,.9))}
+.final-treasure-name{margin-top:12px;padding:7px;border-radius:999px;background:rgba(2,12,20,.82);border:1px solid rgba(255,201,92,.5);color:var(--gold);font-weight:900;font-size:.8rem}
+.completion-code pre{background:#020b14;border-radius:10px;padding:12px;white-space:pre-wrap;color:#d9f8fa;line-height:1.55}
+.success-result{margin-top:12px;padding:12px;border-radius:10px;background:rgba(113,224,165,.1);border:1px solid rgba(113,224,165,.4);color:#cffff0}
+.completion-bottom{grid-column:1/-1;display:grid;grid-template-columns:1fr 300px;gap:14px}
+.completion-medal{
+  display:flex;align-items:center;gap:18px;padding:16px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(110,54,160,.42),rgba(255,201,92,.12));
+  border:1px solid rgba(255,201,92,.45)
+}
+.big-medal{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;font-size:52px;background:radial-gradient(circle,#fff3a2 0 30%,#ffc951 31% 58%,#8c6114 59%);box-shadow:0 0 28px rgba(255,201,92,.5)}
+.medal-copy h2{color:var(--gold);margin-bottom:6px}.medal-copy p{color:var(--muted);margin-bottom:7px}.xp-final{font-size:1.6rem;color:var(--good);font-weight:900}
+.completion-actions{display:grid;gap:9px}
+.completion-actions button{width:100%;padding:12px;border-radius:10px;font-weight:900}
+.play-again{background:linear-gradient(90deg,#7734a8,#9b43c2);color:white;border:1px solid #c572eb}
+.back-start{background:linear-gradient(90deg,#12599b,#1974bd);color:white;border:1px solid #4ca6e8}
+.exit-game{background:#111923;color:white;border:1px solid #4d5967}
+.exit-message{display:none;margin-top:9px;color:var(--muted);font-size:.85rem;line-height:1.4}
+.exit-message.show{display:block}
+@media(max-width:980px){
+  .completion-shell{grid-template-columns:1fr}
+  .completion-title,.completion-bottom{grid-column:auto}
+  .completion-bottom{grid-template-columns:1fr}
+}
+
+</style>
+</head>
+<body>
+<main class="wrap">
+<header>
+  <div class="brand"><strong>The Treasure Door</strong><span>by CogniPlay Dynamics</span></div>
+  <div class="top-actions"><button class="sound" id="testSound">▶ Test Sound</button><button class="sound" id="soundBtn">🔊 Sound On</button></div>
+</header>
+
+<section id="mainGame" class="layout">
+  <aside class="panel">
+    <div class="eyebrow">Learn Through Adventure</div>
+    <h1>The Treasure Door</h1>
+    <p class="lead">Complete three guided levels, then use draggable Python blocks to defeat the final vault challenge.</p>
+    <div class="stats">
+      <div class="stat"><small>Level</small><strong id="levelStat">1 / 3</strong></div>
+      <div class="stat"><small>Lives</small><strong id="livesStat">❤️❤️❤️</strong></div>
+      <div class="stat"><small>Game Score</small><strong id="gameScore">0</strong></div>
+      <div class="stat"><small>Knowledge</small><strong id="knowledgeScore">0 / 3</strong></div>
+    </div>
+    <div class="progress"><div id="progressBar"></div></div>
+    <section class="lesson" id="lessonBox">
+      <h2 id="lessonTitle"></h2><p id="lessonText"></p><div class="lesson-points" id="lessonPoints"></div>
+    </section>
+    <section class="lesson mastery" id="masteryBox">
+      <h2>Adventure Complete</h2><p>You completed all three lessons and the final Python block challenge.</p>
+      <div class="skill-list"><div class="skill"><span class="pass">✓</span> Variables</div><div class="skill"><span class="pass">✓</span> Decisions</div><div class="skill"><span class="pass">✓</span> Loops</div></div>
+      <button class="primary" id="restartAll">Play Again</button>
+    </section>
+  </aside>
+
+  <section class="panel">
+    <div class="scene theme-1" id="scene">
+      <div class="level-flash" id="levelFlash"><div><strong id="flashTitle"></strong><span id="flashSub"></span></div></div>
+      <div class="scene-title"><h2 id="sceneTitle"></h2><p id="sceneSubtitle"></p></div>
+      <div class="portal" id="portal"></div><div class="arch"></div>
+      <div class="doors" id="doors"><div class="door-half left"></div><div class="door-half right"></div></div>
+      <div class="reward" id="reward"></div>
+      <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span>
+    </div>
+    <div class="game-ui"><input id="guessInput" type="number" placeholder="Enter your guess"><button class="primary" id="guessBtn">Run the Code</button></div>
+    <div class="row"><button class="secondary" id="hintBtn">Extra Hint</button><button class="secondary" id="retryBtn" hidden>Retry Level</button><button class="secondary" id="nextBtn" hidden>Next Level</button></div>
+    <div class="feedback" id="feedback">Enter a guess when you are ready.</div>
+    <section class="inspector">
+      <div class="inspector-head"><h3>Python Inspector</h3><span style="color:var(--muted);font-size:.84rem">The executing line is highlighted</span></div>
+      <div class="code-box" id="liveCode"></div>
+      <div class="trace"><div><small>guess</small><strong id="traceGuess">—</strong></div><div><small>secret_number</small><strong id="traceSecret">hidden</strong></div><div><small>loop count</small><strong id="traceLoop">0</strong></div></div>
+    </section>
+    <section class="quiz" id="quiz" hidden><h3 id="quizQuestion"></h3><div class="choices" id="choices"></div><div class="feedback" id="quizFeedback">Choose the correct answer.</div></section>
+  </section>
+</section>
+
+<section id="bossSection" class="boss">
+  <div class="boss-head">
+    <div class="eyebrow">Final Boss Challenge</div>
+    <h2>Build the Ancient Vault Program</h2>
+    <p>Drag blocks into the program slots. The Python code updates automatically. Use Hint when needed, then run your program and watch the game world respond.</p>
+  </div>
+
+  <div class="boss-grid">
+    <aside class="toolbox">
+      <h3>Python Blocks</h3>
+      <div class="block-group"><small>Variables</small><div class="block variable" draggable="true" data-id="init">keys = 0</div></div>
+      <div class="block-group"><small>Loop</small><div class="block loop" draggable="true" data-id="while">while keys &lt; 3:</div></div>
+      <div class="block-group"><small>Operation</small><div class="block operation" draggable="true" data-id="increment">keys += 1</div></div>
+      <div class="block-group"><small>Decision</small><div class="block condition" draggable="true" data-id="decision">if / elif / else</div></div>
+      <div class="block-group"><small>Action</small><div class="block action" draggable="true" data-id="open">Open the vault</div></div>
+      <p style="color:var(--muted);font-size:.88rem;line-height:1.45">Drag each block into the matching logical position. You can remove a placed block and try again.</p>
+    </aside>
+
+    <section class="workspace">
+      <h3>Build Your Program</h3>
+      <div class="program-slot" data-slot="0"><span class="slot-label">1</span><span>Initialize a variable</span></div>
+      <div class="program-slot" data-slot="1"><span class="slot-label">2</span><span>Start a loop</span></div>
+      <div class="program-slot indent" data-slot="2"><span class="slot-label">3</span><span>Repeat an action</span></div>
+      <div class="program-slot" data-slot="3"><span class="slot-label">4</span><span>Make a decision</span></div>
+      <div class="program-slot indent" data-slot="4"><span class="slot-label">5</span><span>Choose the successful action</span></div>
+      <div class="boss-actions"><button class="primary" id="runBoss">▶ Run Adventure</button><button class="secondary" id="hintBoss">💡 Hint</button><button class="secondary" id="resetBoss">Reset</button><button class="secondary" id="solutionBoss">Show Solution</button></div>
+      <div class="hint-box" id="hintBox"></div>
+    </section>
+
+    <aside class="python-live">
+      <h3>Live Python</h3>
+      <div class="python-code" id="generatedCode"># Drag blocks to build your program...</div>
+      <div class="boss-console" id="bossConsole">Ready. Build the program, then run it.</div>
+    </aside>
+  </div>
+
+  <div class="boss-stage" id="bossStage">
+    <div class="speech" id="bossSpeech">Build a program that collects three keys and opens the vault.</div>
+    <div class="guard">🛡️</div><div class="wizard">🧙</div>
+    <div class="vault-glow"></div><div class="vault-arch"></div>
+    <div class="vault-door" id="vaultDoor"><div class="v-half left"></div><div class="v-half right"></div></div>
+    <div class="magic-locks" id="magicLocks"><div class="magic-lock" id="ml1">1</div><div class="magic-lock" id="ml2">2</div><div class="magic-lock" id="ml3">3</div></div>
+    <span class="key-flight k1">🔑</span><span class="key-flight k2">🔑</span><span class="key-flight k3">🔑</span>
+    <div class="treasure-hall">
+      <div class="treasure-art"><span>💎</span><span>👑</span><span>🪙</span><span>🏆</span><span>📜</span><span>⭐</span></div>
+      <div class="treasure-tag">Ancient Python Treasure Hall</div>
+    </div>
+    <div class="stage-status"><div><small>Keys</small><strong id="bossKeys">0 / 3</strong></div><div><small>Loop Iterations</small><strong id="bossLoops">0</strong></div><div><small>Decision</small><strong id="bossDecision">Waiting</strong></div></div>
+    
+    <section class="completion-screen" id="completionScreen">
+      <div class="completion-shell">
+        <div class="completion-title">VAULT UNLOCKED!</div>
+
+        <aside class="completion-lessons">
+          <h3>Lessons Completed</h3>
+          <div class="lesson-done"><span class="lesson-number">1</span><span><strong>Variables</strong><br><small>Store and use data</small></span><span class="done-check">✓</span></div>
+          <div class="lesson-done"><span class="lesson-number">2</span><span><strong>If / Elif / Else</strong><br><small>Make decisions</small></span><span class="done-check">✓</span></div>
+          <div class="lesson-done"><span class="lesson-number">3</span><span><strong>While Loop</strong><br><small>Repeat until complete</small></span><span class="done-check">✓</span></div>
+        </aside>
+
+        <section class="completion-reward">
+          <div class="final-vault-room">
+            <div class="final-arch"></div>
+            <div class="final-door-left"></div>
+            <div class="final-door-right"></div>
+            <div class="final-treasure">
+              <div class="final-treasure-icons"><span>💎</span><span>👑</span><span>🪙</span><span>🏆</span><span>📜</span><span>⭐</span></div>
+              <div class="final-treasure-name">Ancient Python Treasure Hall</div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="completion-code">
+          <h3>&lt;/&gt; Final Python</h3>
+          <pre>keys = 0
+
+while keys &lt; 3:
+    keys += 1
+
+if keys == 0:
+    action = "No keys"
+elif keys &lt; 3:
+    action = "Need more keys"
+else:
+    action = "Open the vault"
+
+print(action)</pre>
+          <div class="success-result">✓ Program executed successfully<br><strong>Result: Open the vault</strong></div>
+        </aside>
+
+        <div class="completion-bottom">
+          <section class="completion-medal">
+            <div class="big-medal">🏆</div>
+            <div class="medal-copy">
+              <h2>Python Treasure Master</h2>
+              <p>Variables Master · Conditions Master · Loops Master</p>
+              <div class="xp-final">+300 XP</div>
+            </div>
+          </section>
+
+          <aside class="completion-actions">
+            <h3>What's Next?</h3>
+            <button type="button" class="play-again" id="playAgainBtn">↻ Play Again</button>
+            <button type="button" class="back-start" id="backStartBtn">🏰 Back to Start</button>
+            <button type="button" class="exit-game" id="exitGameBtn">⇥ Exit Game</button>
+            <div class="exit-message" id="exitMessage">Your browser may block a webpage from closing itself. You can close this tab manually.</div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <div class="medal-overlay" id="medalOverlay">
+      <div class="medal-card">
+        <div class="medal-ring"><span>🏆</span></div>
+        <h2>Python Treasure Master</h2>
+        <p>You built a working program with a variable, a while loop, and a decision structure.</p>
+        <div class="badges"><span>Variable Builder</span><span>Loop Master</span><span>Decision Master</span></div>
+        <div class="xp">+300 XP</div>
+        <button class="primary" id="closeMedal">Explore the Treasure Hall</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 CogniPlay Dynamics, Inc. All Rights Reserved.</footer>
+</main>
+
+<script>
+(() => {
+const levels=[
+ {title:"Variables and Random Numbers",text:"A variable stores information. Python stores the hidden answer in secret_number.",points:["Variables hold values.","random.randint creates a random whole number.","guess stores the player's input."],max:10,theme:1,reward:"💰",rewardName:"Golden Treasure",code:['secret_number = random.randint(1, 10)','guess = int(input("Guess: "))','if guess == secret_number:'],q:"Which variable stores the hidden number?",choices:["guess","secret_number","score"],answer:1,explain:"secret_number stores the generated answer."},
+ {title:"If / Elif / Else Decisions",text:"Python compares the guess with the secret number and chooses one branch.",points:["if checks one condition.","elif checks another.","else handles the remaining result."],max:20,theme:2,reward:"💎",rewardName:"Enchanted Crystal",code:['if guess < secret_number:','    print("Try higher")','elif guess > secret_number:','    print("Try lower")','else:','    print("Unlocked!")'],q:"What lets Python choose between higher, lower, and correct?",choices:["A conditional statement","A comment","A file"],answer:0,explain:"if / elif / else selects one branch."},
+ {title:"While Loops and Break",text:"The loop repeats the guessing process. break stops it when the answer is correct.",points:["while True repeats.","Each guess is one iteration.","break exits the loop."],max:30,theme:3,reward:"👑",rewardName:"Royal Crown",code:['while True:','    guess = int(input("Guess: "))','    if guess == secret_number:','        break'],q:"Which keyword stops the while True loop?",choices:["input","random","break"],answer:2,explain:"break exits the nearest loop."}
+];
+
+let level=0,lives=3,secret=1,loops=0,score=0,knowledge=0,solved=false,quizPassed=false,soundOn=true,audioCtx=null;
+const mastered=[false,false,false];
+const $=id=>document.getElementById(id);
+const el={mainGame:$("mainGame"),bossSection:$("bossSection"),scene:$("scene"),doors:$("doors"),portal:$("portal"),reward:$("reward"),
+sceneTitle:$("sceneTitle"),sceneSubtitle:$("sceneSubtitle"),guessInput:$("guessInput"),guessBtn:$("guessBtn"),hintBtn:$("hintBtn"),
+retryBtn:$("retryBtn"),nextBtn:$("nextBtn"),feedback:$("feedback"),liveCode:$("liveCode"),traceGuess:$("traceGuess"),
+traceSecret:$("traceSecret"),traceLoop:$("traceLoop"),quiz:$("quiz"),quizQuestion:$("quizQuestion"),choices:$("choices"),
+quizFeedback:$("quizFeedback"),levelStat:$("levelStat"),livesStat:$("livesStat"),gameScore:$("gameScore"),
+knowledgeScore:$("knowledgeScore"),progressBar:$("progressBar"),lessonTitle:$("lessonTitle"),lessonText:$("lessonText"),
+lessonPoints:$("lessonPoints"),lessonBox:$("lessonBox"),masteryBox:$("masteryBox"),levelFlash:$("levelFlash"),
+flashTitle:$("flashTitle"),flashSub:$("flashSub"),soundBtn:$("soundBtn")};
+
+async function ensureAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==="suspended")await audioCtx.resume()}
+async function note(f,d=.14,type="sine",delay=0,v=.16){if(!soundOn)return;await ensureAudio();const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime+delay;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+d+.03)}
+async function sfx(k){if(k==="click")note(520,.1);if(k==="wrong"){note(185,.2,"square");note(135,.22,"square",.15)}if(k==="right"){note(440,.12);note(660,.14,"sine",.13);note(880,.22,"sine",.28)}if(k==="open"){note(95,.5,"sawtooth",0,.11);note(125,.4,"sawtooth",.08,.09);note(520,.22,"sine",.42)}if(k==="key"){note(700,.1);note(920,.14,"sine",.1)}if(k==="finish"){[523,659,784,1046].forEach((f,i)=>note(f,.24,"sine",i*.15))}}
+
+function L(){return levels[level]}
+function stats(){el.levelStat.textContent=`${level+1} / 3`;el.livesStat.textContent="❤️".repeat(lives)+"🖤".repeat(3-lives);el.gameScore.textContent=score;el.knowledgeScore.textContent=`${knowledge} / 3`;el.progressBar.style.width=`${((level+1)/3)*100}%`}
+function renderCode(active=-1){el.liveCode.innerHTML=L().code.map((x,i)=>`<span class="code-line ${i===active?"active":""}">${x.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}</span>`).join("")}
+function setFeedback(t,type=""){el.feedback.textContent=t;el.feedback.className="feedback"+(type?` ${type}`:"")}
+function loadLevel(){
+ lives=3;loops=0;solved=false;quizPassed=false;secret=Math.floor(Math.random()*L().max)+1;
+ el.scene.className=`scene theme-${L().theme}`;el.doors.classList.remove("open");el.portal.classList.remove("show");el.scene.classList.remove("won");
+ el.reward.classList.remove("show");el.reward.innerHTML=`<div class="reward-art">${L().reward}</div><div class="reward-name">${L().rewardName}</div>`;
+ el.sceneTitle.textContent=`Level ${level+1}`;el.sceneSubtitle.textContent=`Guess a whole number from 1 to ${L().max}.`;
+ el.lessonTitle.textContent=`Level ${level+1}: ${L().title}`;el.lessonText.textContent=L().text;el.lessonPoints.innerHTML=L().points.map(x=>`<div class="lesson-point"><b>✓</b><span>${x}</span></div>`).join("");
+ el.guessInput.value="";el.guessInput.disabled=false;el.guessBtn.disabled=false;el.hintBtn.disabled=false;el.retryBtn.hidden=true;el.nextBtn.hidden=true;el.quiz.hidden=true;
+ el.traceGuess.textContent="—";el.traceSecret.textContent="hidden";el.traceLoop.textContent="0";renderCode();setFeedback("Enter a guess when you are ready.");stats();
+ el.flashTitle.textContent=`Level ${level+1}`;el.flashSub.textContent=L().title;el.levelFlash.classList.add("show");setTimeout(()=>el.levelFlash.classList.remove("show"),850)
+}
+function guess(){
+ if(solved)return;const n=Number(el.guessInput.value);
+ if(!Number.isInteger(n)||n<1||n>L().max){setFeedback(`Enter a whole number from 1 to ${L().max}.`,"bad");sfx("wrong");return}
+ loops++;el.traceGuess.textContent=n;el.traceLoop.textContent=loops;
+ let active=0;if(level===0)active=n===secret?2:1;if(level===1)active=n<secret?1:n>secret?3:5;if(level===2)active=n===secret?3:0;renderCode(active);
+ if(n===secret){
+  solved=true;const pts=lives*10;score+=pts;el.traceSecret.textContent=secret;el.doors.classList.add("open");el.portal.classList.add("show");el.reward.classList.add("show");el.scene.classList.add("won");
+  el.guessInput.disabled=true;el.guessBtn.disabled=true;el.hintBtn.disabled=true;setFeedback(`Correct. You earned ${pts} points. Complete the knowledge check.`,"good");sfx("open");setTimeout(()=>sfx("right"),650);stats();setTimeout(showQuiz,650)
+ }else{
+  lives--;stats();sfx("wrong");
+  if(lives===0){el.traceSecret.textContent=secret;el.guessInput.disabled=true;el.guessBtn.disabled=true;el.hintBtn.disabled=true;el.retryBtn.hidden=false;setFeedback(`The answer was ${secret}. Review the highlighted code, then retry.`,"bad")}
+  else{setFeedback(`Try ${n<secret?"higher":"lower"}. The loop repeats. ${lives} lives remain.`);el.guessInput.select()}
+ }
+}
+function showQuiz(){el.quiz.hidden=false;el.quizQuestion.textContent=L().q;el.choices.innerHTML="";L().choices.forEach((x,i)=>{const b=document.createElement("button");b.className="choice";b.type="button";b.textContent=x;b.addEventListener("click",()=>answer(i,b));el.choices.appendChild(b)})}
+function answer(i,b){if(quizPassed)return;[...el.choices.children].forEach(x=>x.classList.remove("correct","wrong"));if(i===L().answer){b.classList.add("correct");quizPassed=true;if(!mastered[level]){mastered[level]=true;knowledge++}el.quizFeedback.textContent=`Correct. ${L().explain}`;el.quizFeedback.className="feedback good";el.nextBtn.hidden=false;el.nextBtn.textContent=level===2?"Enter Final Boss":"Next Level";stats();sfx("right")}else{b.classList.add("wrong");el.quizFeedback.textContent=`Not yet. ${L().explain}`;el.quizFeedback.className="feedback bad";sfx("wrong")}}
+function next(){if(!quizPassed)return;if(level<2){level++;loadLevel()}else showBoss()}
+
+el.guessBtn.addEventListener("click",async()=>{await ensureAudio();sfx("click");guess()});
+el.guessInput.addEventListener("keydown",async e=>{if(e.key==="Enter"){await ensureAudio();guess()}});
+el.hintBtn.addEventListener("click",()=>{setFeedback(`Hint: The number is ${secret%2===0?"even":"odd"} and in the ${secret<=L().max/2?"lower":"upper"} half.`);el.hintBtn.disabled=true});
+el.retryBtn.addEventListener("click",loadLevel);el.nextBtn.addEventListener("click",next);
+$("testSound").addEventListener("click",async()=>{soundOn=true;el.soundBtn.textContent="🔊 Sound On";await ensureAudio();sfx("right")});
+el.soundBtn.addEventListener("click",async()=>{soundOn=!soundOn;el.soundBtn.textContent=soundOn?"🔊 Sound On":"🔇 Sound Off";if(soundOn){await ensureAudio();sfx("click")}});
+
+/* Drag block boss */
+const solution=["init","while","increment","decision","open"];
+const placed=[null,null,null,null,null];
+const blockInfo={
+ init:{label:"keys = 0",cls:"variable"},
+ while:{label:"while keys < 3:",cls:"loop"},
+ increment:{label:"keys += 1",cls:"operation"},
+ decision:{label:"if / elif / else",cls:"condition"},
+ open:{label:'action = "Open the vault"',cls:"action"}
+};
+const slots=[...document.querySelectorAll(".program-slot")];
+document.querySelectorAll(".block").forEach(b=>{
+ b.addEventListener("dragstart",e=>{b.classList.add("dragging");e.dataTransfer.setData("text/plain",b.dataset.id)});
+ b.addEventListener("dragend",()=>b.classList.remove("dragging"));
+});
+slots.forEach((s,i)=>{
+ s.addEventListener("dragover",e=>{e.preventDefault();s.classList.add("over")});
+ s.addEventListener("dragleave",()=>s.classList.remove("over"));
+ s.addEventListener("drop",e=>{e.preventDefault();s.classList.remove("over");placeBlock(i,e.dataTransfer.getData("text/plain"))});
+});
+function placeBlock(i,id){
+ if(!blockInfo[id])return;
+ const old=placed.indexOf(id);if(old>=0)placed[old]=null;
+ placed[i]=id;renderSlots();renderGenerated();sfx("click")
+}
+function renderSlots(){
+ slots.forEach((s,i)=>{
+  const id=placed[i];
+  if(!id){s.classList.remove("filled");s.innerHTML=`<span class="slot-label">${i+1}</span><span>${["Initialize a variable","Start a loop","Repeat an action","Make a decision","Choose the successful action"][i]}</span>`;return}
+  s.classList.add("filled");s.innerHTML=`<span class="slot-label">${i+1}</span><span class="slot-block ${blockInfo[id].cls}">${blockInfo[id].label}</span><button class="remove-block" type="button">×</button>`;
+  s.querySelector("button").addEventListener("click",()=>{placed[i]=null;renderSlots();renderGenerated()})
+ })
+}
+function generatedLines(){
+ const lines=[];
+ placed.forEach(id=>{
+  if(id==="init")lines.push("keys = 0");
+  if(id==="while")lines.push("while keys < 3:");
+  if(id==="increment")lines.push("    keys += 1");
+  if(id==="decision")lines.push('if keys == 0:','    action = "No entry"','elif keys < 3:','    action = "Find more keys"','else:');
+  if(id==="open")lines.push('    action = "Open the vault"','print(action)');
+ });
+ return lines
+}
+function renderGenerated(active=-1){
+ const lines=generatedLines();$("generatedCode").innerHTML=lines.length?lines.map((x,i)=>`<span class="python-line ${i===active?"active":""}">${x.replaceAll("<","&lt;").replaceAll(">","&gt;")}</span>`).join(""):"# Drag blocks to build your program..."
+}
+let hintStep=0;
+const hints=[
+ "Start by setting a variable to zero. Look for the orange variable block.",
+ "A loop should come next. It repeats until three keys have been collected.",
+ "The green operation belongs inside the loop, so place it in the indented slot.",
+ "After the loop, use the blue decision block.",
+ "The successful action belongs under the decision in the final indented slot."
+];
+$("hintBoss").addEventListener("click",()=>{$("hintBox").classList.add("show");$("hintBox").textContent=hints[Math.min(hintStep,hints.length-1)];hintStep++;sfx("click")});
+$("resetBoss").addEventListener("click",()=>{placed.fill(null);hintStep=0;renderSlots();renderGenerated();$("hintBox").classList.remove("show");resetBossStage();$("bossConsole").textContent="Ready. Build the program, then run it."});
+$("solutionBoss").addEventListener("click",()=>{if(confirm("Show the complete solution? Try the hints first when possible.")){solution.forEach((x,i)=>placed[i]=x);renderSlots();renderGenerated();$("bossConsole").textContent="Solution placed. Study the generated Python, then run it."}});
+function resetBossStage(){
+ $("bossStage").classList.remove("won");$("vaultDoor").classList.remove("open");$("magicLocks").classList.remove("hide");document.querySelectorAll(".magic-lock").forEach(x=>x.classList.remove("on"));
+ document.querySelectorAll(".key-flight").forEach(x=>{x.classList.remove("fly");void x.offsetWidth});$("bossKeys").textContent="0 / 3";$("bossLoops").textContent="0";$("bossDecision").textContent="Waiting";$("bossSpeech").textContent="Build a program that collects three keys and opens the vault.";$("medalOverlay").classList.remove("show");
+ if($("completionScreen"))$("completionScreen").classList.remove("show")
+}
+$("runBoss").addEventListener("click",async()=>{
+ await ensureAudio();resetBossStage();
+ if(JSON.stringify(placed)!==JSON.stringify(solution)){
+  $("bossConsole").textContent="The program is not complete yet.\n\nCheck the logical order:\n1. Initialize\n2. Loop\n3. Increase keys\n4. Decision\n5. Open vault";
+  $("bossSpeech").textContent="The spell blocks are out of order. Use a hint and try again.";sfx("wrong");return
+ }
+ $("bossConsole").textContent="Running program...\n";$("bossSpeech").textContent="The while loop is collecting keys...";
+ let k=0;
+ const timer=setInterval(()=>{
+  k++;$("bossKeys").textContent=`${k} / 3`;$("bossLoops").textContent=k;$("bossConsole").textContent+=`Loop ${k}: keys = ${k}\n`;
+  document.querySelector(`.k${k}`).classList.add("fly");setTimeout(()=>document.querySelector(`#ml${k}`).classList.add("on"),650);sfx("key");
+  renderGenerated(k===1?1:k===2?2:2);
+  if(k===3){
+   clearInterval(timer);
+   setTimeout(()=>{
+    $("bossConsole").textContent+='\nif keys == 0 → False\nelif keys < 3 → False\nelse → Open the vault';
+    $("bossDecision").textContent="Open the vault";$("bossSpeech").textContent="Your decision is correct. The vault may open!";renderGenerated(8);
+    setTimeout(()=>{
+      $("magicLocks").classList.add("hide");$("vaultDoor").classList.add("open");$("bossStage").classList.add("won");sfx("open");
+      $("bossConsole").textContent+="\n\nProgram finished successfully.";
+      setTimeout(()=>{
+        sfx("finish");
+        $("medalOverlay").classList.add("show");
+      },1100)
+    },800)
+   },700)
+  }
+ },700)
+});
+$("closeMedal").addEventListener("click",()=>{
+  $("medalOverlay").classList.remove("show");
+  $("completionScreen").classList.add("show");
+});
+$("playAgainBtn").addEventListener("click",()=>{
+  $("completionScreen").classList.remove("show");
+  placed.fill(null);
+  hintStep=0;
+  renderSlots();
+  renderGenerated();
+  resetBossStage();
+  $("bossConsole").textContent="Ready. Build the program, then run it.";
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+$("backStartBtn").addEventListener("click",()=>location.reload());
+$("exitGameBtn").addEventListener("click",()=>{
+  try{window.close()}catch(e){}
+  $("exitMessage").classList.add("show");
+});
+$("restartAll").addEventListener("click",()=>location.reload());
+
+function showBoss(){
+ el.mainGame.style.display="none";el.bossSection.classList.add("show");window.scrollTo({top:0,behavior:"smooth"});resetBossStage();renderSlots();renderGenerated();sfx("finish")
+}
+loadLevel();
+})();
+</script>
+</body>
+</html>
